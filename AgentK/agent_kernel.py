@@ -10,7 +10,7 @@ import os
 app = FastAPI()
 
 # Get allowed origins from environment variable or use defaults
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,https://forgelabs.vercel.app").split(",")
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,https://forgelabs-six.vercel.app,https://forgeai.xyz").split(",")
 
 # Add CORS middleware with more restrictive settings
 app.add_middleware(

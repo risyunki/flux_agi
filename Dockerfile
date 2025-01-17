@@ -6,6 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
+    python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
@@ -22,12 +23,14 @@ COPY . .
 # Build web app
 RUN cd agentk-web && npm run build
 
-# Copy AgentK requirements and install Python dependencies
-RUN cd AgentK && pip3 install -r requirements.txt
+# Set up Python virtual environment and install dependencies
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN cd AgentK && pip3 install --no-cache-dir -r requirements.txt
 
 # Expose ports
 EXPOSE 3000
 EXPOSE 8000
 
 # Start both services
-CMD cd agentk-web && npm start & cd AgentK && python3 agent_kernel.py 
+CMD cd agentk-web && npm start & cd AgentK && /opt/venv/bin/python3 agent_kernel.py 
