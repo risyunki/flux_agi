@@ -1,4 +1,5 @@
-langgraph==0.0.15
+langchain-core>=0.2.27,<0.3.0
+langgraph>=0.0.15
 langchain-community==0.2.11
 langchain-openai
 langchain-anthropic

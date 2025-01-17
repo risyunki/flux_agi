@@ -26,7 +26,9 @@ RUN cd agentk-web && npm run build
 # Set up Python virtual environment and install dependencies
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN cd AgentK && pip3 install --no-cache-dir -r requirements.txt
+WORKDIR /app/AgentK
+RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+WORKDIR /app
 
 # Expose ports
 EXPOSE 3000

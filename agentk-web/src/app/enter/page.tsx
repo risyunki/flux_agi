@@ -6,15 +6,27 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { setCookie } from 'cookies-next'
+import { useEffect } from 'react'
 
 export default function EnterPage() {
   const { theme } = useTheme()
   const router = useRouter()
 
+  // Force redirect if cookie exists
+  useEffect(() => {
+    const checkCookie = () => {
+      const entered = document.cookie.includes('entered=true')
+      if (entered) {
+        window.location.href = '/'
+      }
+    }
+    checkCookie()
+  }, [])
+
   const handleEnter = () => {
     setCookie('entered', 'true', { maxAge: 60 * 60 * 24 * 30 }) // 30 days
-    router.push('/')
-    router.refresh() // Force a refresh to ensure the layout updates
+    // Force a hard reload to ensure everything resets
+    window.location.href = '/'
   }
 
   return (
