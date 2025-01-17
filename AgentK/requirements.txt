@@ -1,0 +1,11 @@
+langgraph==0.0.15
+langchain-community==0.2.11
+langchain-openai
+langchain-anthropic
+selenium
+unstructured
+duckduckgo-search
+python-dotenv
+fastapi
+uvicorn[standard]
+websockets
