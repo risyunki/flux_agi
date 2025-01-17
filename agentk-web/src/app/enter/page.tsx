@@ -3,14 +3,12 @@
 import { useTheme } from "next-themes"
 import { Waves } from "@/components/ui/waves-background"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { setCookie } from 'cookies-next'
 import { useEffect } from 'react'
 
 export default function EnterPage() {
   const { theme } = useTheme()
-  const router = useRouter()
 
   // Force redirect if cookie exists
   useEffect(() => {
