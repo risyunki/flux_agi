@@ -14,6 +14,7 @@ export default function EnterPage() {
   const handleEnter = () => {
     setCookie('entered', 'true', { maxAge: 60 * 60 * 24 * 30 }) // 30 days
     router.push('/')
+    router.refresh() // Force a refresh to ensure the layout updates
   }
 
   return (

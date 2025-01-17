@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Toaster } from "sonner"
 import Image from "next/image"
 import { usePathname } from 'next/navigation'
+import { getCookie } from 'cookies-next'
 
 interface LayoutContentProps {
   children: ReactNode
@@ -28,11 +29,14 @@ interface Link {
 export function LayoutContent({ children }: LayoutContentProps) {
   const [open, setOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
+  const [hasEntered, setHasEntered] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains('dark')
     setIsDark(isDarkMode)
+    const entered = getCookie('entered')
+    setHasEntered(!!entered)
   }, [])
 
   const links: Link[] = [
@@ -62,6 +66,14 @@ export function LayoutContent({ children }: LayoutContentProps) {
       icon: <Settings className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
     },
   ]
+
+  if (pathname === '/enter') {
+    return children
+  }
+
+  if (!hasEntered) {
+    return null
+  }
 
   return (
     <div className="flex h-screen bg-white dark:bg-stone-950">

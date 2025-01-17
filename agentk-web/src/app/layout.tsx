@@ -8,7 +8,11 @@ export const metadata: Metadata = {
   title: 'Forge - AGI-Powered Workspace',
   description: 'Self-evolving AGI made of agents that collaborate, and build new agents as needed, in order to complete tasks for a user.',
   icons: {
-    icon: '/logo.png',
+    icon: [
+      { url: '/logo.png', type: 'image/png' },
+      { url: '/favicon.ico', type: 'image/x-icon' },
+    ],
+    shortcut: '/logo.png',
     apple: '/logo.png',
   },
   openGraph: {
