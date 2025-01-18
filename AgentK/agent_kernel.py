@@ -5,12 +5,18 @@ import json
 from typing import List, Dict, Any
 import uuid
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 try:
     from agents import hermes
     HERMES_AVAILABLE = True
 except ImportError:
     HERMES_AVAILABLE = False
+    logger.warning("Hermes module not available")
 
 app = FastAPI()
 
@@ -30,8 +36,14 @@ app.add_middleware(
 tasks = []
 active_connections: List[WebSocket] = []
 
+@app.get("/health")
+async def health_check():
+    logger.info("Health check endpoint called")
+    return {"status": "healthy"}
+
 @app.get("/")
 async def root():
+    logger.info("Root endpoint called")
     return {"status": "ok", "version": "1.0.0"}
 
 @app.get("/agents")
@@ -127,4 +139,11 @@ async def websocket_endpoint(websocket: WebSocket):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "8000"))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    logger.info(f"Starting server on port {port}")
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=port,
+        log_level="info",
+        access_log=True
+    )
