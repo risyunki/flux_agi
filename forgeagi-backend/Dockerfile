@@ -1,26 +1,29 @@
 FROM python:3.11-slim
 
-# Install system dependencies
-COPY apt-packages-list.txt .
-RUN apt-get update && \
-    xargs apt-get install -y < apt-packages-list.txt && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm apt-packages-list.txt
-
-# Create app directory
+# Set working directory
 WORKDIR /app
 
-# Copy Python requirements and Forge AI code
+# Install python3-venv
+RUN apt-get update && apt-get install -y \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python requirements and backend code
 COPY forgeagi-backend forgeagi-backend/
 
-# Set working directory to Forge AI backend
+# Set working directory to forgeagi-backend
 WORKDIR /app/forgeagi-backend
 
-# Install Python dependencies
+# Create and activate virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set Python to run in unbuffered mode
-ENV PYTHONUNBUFFERED=1
+# Expose the port the app runs on
+ENV PORT=8000
+EXPOSE 8000
 
-# Run the application
+# Command to run the application
 CMD ["python", "forge_kernel.py"]
