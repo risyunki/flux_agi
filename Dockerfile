@@ -1,31 +1,29 @@
 FROM python:3.11-slim
 
-# Set working directory for the entire build
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install python3-venv
 RUN apt-get update && apt-get install -y \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python requirements and AgentK code
-COPY AgentK AgentK/
+# Copy only the requirements file first
+COPY ./forgeagi-backend/requirements.txt .
 
-# Set working directory to AgentK
-WORKDIR /app/AgentK
-
-# Set up Python virtual environment and install dependencies
+# Create and activate virtual environment
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install Python dependencies
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Default port (can be overridden by Railway)
-ENV PORT=8000
+# Copy the rest of the backend code
+COPY ./forgeagi-backend .
 
-# Expose the port
+# Expose the port the app runs on
+ENV PORT=8000
 EXPOSE 8000
 
-# Start the FastAPI server using shell form for proper env var expansion
-CMD uvicorn agent_kernel:app --host 0.0.0.0 --port ${PORT} --log-level info 
+# Command to run the application
+CMD ["python", "forge_kernel.py"] 
