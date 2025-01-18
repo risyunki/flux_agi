@@ -7,22 +7,23 @@ import { Metadata } from "next"
 export const metadata: Metadata = {
   title: 'Forge - AGI-Powered Workspace',
   description: 'Self-evolving AGI made of agents that collaborate, and build new agents as needed, in order to complete tasks for a user.',
-  metadataBase: new URL('https://forgeagi.xyz'),
+  metadataBase: new URL('https://forgeai.xyz'),
   icons: {
     icon: [
+      { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
       { url: '/favicon.ico', type: 'image/x-icon' },
-      { url: '/logo.png', type: 'image/png', sizes: '32x32' },
-      { url: '/logo.png', type: 'image/png', sizes: '192x192' },
-      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
     ],
-    shortcut: '/logo.png',
     apple: [
-      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
     other: [
       {
-        rel: 'apple-touch-icon',
-        url: '/logo.png',
+        rel: 'mask-icon',
+        url: '/icons/android-chrome-512x512.png',
+        color: '#000000',
       },
     ],
   },
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
     description: 'Self-evolving AGI made of agents that collaborate, and build new agents as needed, in order to complete tasks for a user.',
     siteName: 'Forge AI',
     images: [{
-      url: '/logo.png',
+      url: '/icons/android-chrome-512x512.png',
       width: 512,
       height: 512,
       alt: 'Forge AI Logo'
@@ -44,10 +45,10 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Forge - AGI-Powered Workspace',
     description: 'Self-evolving AGI made of agents that collaborate, and build new agents as needed, in order to complete tasks for a user.',
-    site: '@forgeagi',
-    creator: '@forgeagi',
+    site: '@forgeai',
+    creator: '@forgeai',
     images: [{
-      url: '/logo.png',
+      url: '/icons/android-chrome-512x512.png',
       width: 512,
       height: 512,
       alt: 'Forge AI Logo'
