@@ -1,7 +1,0 @@
-checkpoints.sqlite*
-__pycache__
-.env
-tmp
-_scratch.py
-
-venv/
