@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Python requirements and AgentK code
-COPY AgentK/* ./
+COPY AgentK .
 
 # Set up Python virtual environment and install dependencies
 RUN python3 -m venv /opt/venv

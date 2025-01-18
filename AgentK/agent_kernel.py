@@ -3,9 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import json
 from typing import List, Dict, Any
-from agents import hermes
 import uuid
 import os
+
+try:
+    from agents import hermes
+    HERMES_AVAILABLE = True
+except ImportError:
+    HERMES_AVAILABLE = False
 
 app = FastAPI()
 
@@ -27,7 +32,7 @@ active_connections: List[WebSocket] = []
 
 @app.get("/")
 async def root():
-    return {"status": "ok"}
+    return {"status": "ok", "version": "1.0.0"}
 
 @app.get("/agents")
 async def get_agents():
@@ -36,21 +41,21 @@ async def get_agents():
             {
                 "id": "bragi",
                 "name": "Bragi",
-                "status": "active",
+                "status": "active" if HERMES_AVAILABLE else "inactive",
                 "type": "assistant",
                 "description": "A wise and eloquent AI assistant that can help with various tasks"
             },
             {
                 "id": "odin",
                 "name": "Odin",
-                "status": "active",
+                "status": "active" if HERMES_AVAILABLE else "inactive",
                 "type": "coordinator",
                 "description": "The wise overseer of all operations and strategic planning"
             },
             {
                 "id": "thor",
                 "name": "Thor",
-                "status": "active",
+                "status": "active" if HERMES_AVAILABLE else "inactive",
                 "type": "architect",
                 "description": "The master builder and maintainer of the system's agents"
             }
@@ -63,6 +68,9 @@ async def get_tasks():
 
 @app.post("/tasks")
 async def create_task(request: Request):
+    if not HERMES_AVAILABLE:
+        return {"error": "Task processing is currently unavailable"}
+        
     task_data = await request.json()
     task_id = str(uuid.uuid4())
     task = {
@@ -118,4 +126,5 @@ async def websocket_endpoint(websocket: WebSocket):
             active_connections.remove(websocket)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
