@@ -18,8 +18,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose FastAPI port
-EXPOSE 8000
+# Default port (can be overridden by Railway)
+ENV PORT=8000
 
-# Start the FastAPI server using shell form
-CMD /opt/venv/bin/python3 agent_kernel.py 
+# Expose the port
+EXPOSE $PORT
+
+# Start the FastAPI server using uvicorn
+CMD uvicorn agent_kernel:app --host 0.0.0.0 --port $PORT 
