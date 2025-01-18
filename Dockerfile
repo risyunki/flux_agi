@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV PORT=8000
 
 # Expose the port
-EXPOSE $PORT
+EXPOSE 8000
 
-# Start the FastAPI server using uvicorn with explicit options
-CMD ["uvicorn", "agent_kernel:app", "--host", "0.0.0.0", "--port", "$PORT", "--log-level", "info"] 
+# Start the FastAPI server using shell form for proper env var expansion
+CMD uvicorn agent_kernel:app --host 0.0.0.0 --port ${PORT} --log-level info 
