@@ -1,36 +1,33 @@
 # Use Python 3.11 slim image
 FROM python:3.11-slim
 
+# Install python3-venv
+RUN apt-get update && apt-get install -y \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Create startup script for debugging
-RUN echo '#!/bin/bash\n\
-echo "Starting app..."\n\
-echo "PORT=$PORT"\n\
-echo "Working directory: $(pwd)"\n\
-echo "Files in directory:"\n\
-ls -la\n\
-echo "Python path:"\n\
-echo $PYTHONPATH\n\
-echo "Starting uvicorn..."\n\
-PYTHONPATH=/app uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT --log-level debug\n'\
-> start.sh && chmod +x start.sh
+# Create and activate virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install dependencies
+# Install dependencies in virtual environment
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the backend directory
-COPY backend/ /app/backend/
+# Copy the application
+COPY . .
 
-# Set environment variables
+# Create startup script
+RUN echo '#!/bin/bash\n\
+. /opt/venv/bin/activate\n\
+echo "Starting app on port $PORT..."\n\
+exec uvicorn forge_kernel:app --host 0.0.0.0 --port $PORT\n'\
+> start.sh && chmod +x start.sh
+
 ENV PORT=8000
-ENV PYTHONPATH=/app
 
-# Expose the port
-EXPOSE 8000
-
-# Use the startup script
 CMD ["./start.sh"]
