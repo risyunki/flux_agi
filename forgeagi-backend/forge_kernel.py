@@ -52,18 +52,11 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint for monitoring service status"""
-    try:
-        return {
-            "status": "healthy",
-            "version": "2.0.0",
-            "timestamp": datetime.now().isoformat(),
-            "uptime": (datetime.now() - kernel.metrics.uptime_start).total_seconds(),
-            "tasks_completed": kernel.metrics.tasks_completed,
-            "tasks_failed": kernel.metrics.tasks_failed
-        }
-    except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+    return {
+        "status": "healthy",
+        "version": "2.0.0",
+        "timestamp": datetime.now().isoformat()
+    }
 
 # Configure CORS
 allowed_origins = os.getenv(
