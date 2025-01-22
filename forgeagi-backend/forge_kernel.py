@@ -31,18 +31,36 @@ logger = logging.getLogger("forge.kernel")
 # ------------------------------------------------------
 # FastAPI App Configuration
 # ------------------------------------------------------
-app = FastAPI(
-    title="Forge AI API",
-    description="Advanced AI Agent System for Task Processing and Automation",
-    version="2.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+app = FastAPI()
+
+# Configure CORS
+allowed_origins = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:3001,http://localhost:3002,https://forgelabs-six.vercel.app,https://forgeagi.xyz"
+).split(",")
+
+logger.info(f"Configuring CORS with allowed origins: {allowed_origins}")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Add health check endpoint
+@app.on_event("startup")
+async def startup_event():
+    """Log startup information"""
+    logger.info("Starting Forge AI API")
+    logger.info(f"Environment: {os.environ.get('ENVIRONMENT', 'production')}")
+    logger.info(f"Port: {os.environ.get('PORT', '8000')}")
+    logger.info(f"Allowed Origins: {allowed_origins}")
+
 @app.get("/")
 async def root():
     """Root endpoint that returns basic API information"""
+    logger.debug("Root endpoint called")
     return {
         "name": "Forge AI API",
         "version": "2.0.0",
@@ -52,6 +70,7 @@ async def root():
 @app.get("/health")
 def health_check():
     """Health check endpoint"""
+    logger.debug("Health check called")
     return {"status": "healthy"}
 
 # Configure CORS

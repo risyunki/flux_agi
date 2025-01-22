@@ -1,11 +1,6 @@
 # Use Python 3.11 slim image
 FROM python:3.11-slim
 
-# Install python3-venv
-RUN apt-get update && apt-get install -y \
-    python3-venv \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
 # Create and activate virtual environment
@@ -21,13 +16,24 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application
 COPY forgeagi-backend .
 
-# Create startup script
+# Create startup script with detailed logging
 RUN echo '#!/bin/bash\n\
+set -e\n\
 . /opt/venv/bin/activate\n\
-echo "Starting app on port $PORT..."\n\
+echo "=== Environment Information ==="\n\
+echo "Python version:"\n\
+python --version\n\
+echo "Working directory: $(pwd)"\n\
+echo "Directory contents:"\n\
+ls -la\n\
+echo "Environment variables:"\n\
+env | grep -v "KEY"\n\
+echo "=== Starting Application ==="\n\
 exec uvicorn forge_kernel:app --host 0.0.0.0 --port $PORT --log-level debug\n'\
 > start.sh && chmod +x start.sh
 
+# Set environment variables
 ENV PORT=8000
+ENV PYTHONUNBUFFERED=1
 
 CMD ["./start.sh"]
