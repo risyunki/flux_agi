@@ -40,6 +40,15 @@ app = FastAPI(
 )
 
 # Add health check endpoint
+@app.get("/")
+async def root():
+    """Root endpoint that returns basic API information"""
+    return {
+        "name": "Forge AI API",
+        "version": "2.0.0",
+        "status": "running"
+    }
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint for monitoring service status"""
@@ -48,7 +57,9 @@ async def health_check():
             "status": "healthy",
             "version": "2.0.0",
             "timestamp": datetime.now().isoformat(),
-            "environment": os.getenv("ENVIRONMENT", "production")
+            "uptime": (datetime.now() - kernel.metrics.uptime_start).total_seconds(),
+            "tasks_completed": kernel.metrics.tasks_completed,
+            "tasks_failed": kernel.metrics.tasks_failed
         }
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
@@ -258,29 +269,6 @@ class ForgeKernel:
         """
         Register HTTP endpoints and WebSocket endpoints with the FastAPI application.
         """
-        @app.get("/")
-        async def root():
-            return {
-                "name": "Forge AI System",
-                "version": "2.0.0",
-                "status": "operational",
-                "features": [
-                    "Task Processing",
-                    "WebSocket Updates",
-                    "Priority-based Task Queue",
-                    "System Metrics"
-                ]
-            }
-
-        @app.get("/health")
-        async def health_check():
-            return {
-                "status": "healthy",
-                "version": "2.0.0",
-                "agents_available": BRAGI_AVAILABLE,
-                **self.metrics.to_dict(),
-            }
-
         @app.get("/agents")
         async def list_agents():
             return {
@@ -508,4 +496,5 @@ class ForgeKernel:
 kernel = ForgeKernel()
 
 if __name__ == "__main__":
-    kernel.run()
+    # Start the server using the PORT from environment variable
+    uvicorn.run("forge_kernel:app", host="0.0.0.0", port=PORT, reload=True)
