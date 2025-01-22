@@ -1,42 +1,43 @@
-# Version control
+# Git
 .git
 .gitignore
 
 # Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-.env
-*.egg-info/
-.installed.cfg
-*.egg
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.so
+**/.Python
+**/env/
+**/build/
+**/develop-eggs/
+**/dist/
+**/downloads/
+**/eggs/
+**/.eggs/
+**/lib64/
+**/parts/
+**/sdist/
+**/var/
+**/*.egg-info/
+**/.installed.cfg
+**/*.egg
 
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
+# Virtual Environment
+**/venv/
+**/ENV/
 
 # IDE
 .idea/
 .vscode/
-*.swp
-*.swo
+**/*.swp
+**/*.swo
 
-# OS
+# Misc
 .DS_Store
-Thumbs.db
+**/*.log
+**/.env
+**/.env.*
 
-# Project specific
-*.log
-*.sqlite
-*.db
-forgeagi-frontend/ 
+# Frontend
+forgeagi-frontend/

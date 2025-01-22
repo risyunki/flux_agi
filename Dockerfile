@@ -1,29 +1,33 @@
+# Use Python 3.11 slim image
 FROM python:3.11-slim
-
-# Set working directory
-WORKDIR /app
 
 # Install python3-venv
 RUN apt-get update && apt-get install -y \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy only the requirements file first
-COPY ./forgeagi-backend/requirements.txt .
+WORKDIR /app
 
 # Create and activate virtual environment
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install dependencies
+# Copy requirements first for better caching
+COPY forgeagi-backend/requirements.txt .
+
+# Install dependencies in virtual environment
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the backend code
-COPY ./forgeagi-backend .
+# Copy the application
+COPY forgeagi-backend .
 
-# Expose the port the app runs on
+# Create startup script
+RUN echo '#!/bin/bash\n\
+. /opt/venv/bin/activate\n\
+echo "Starting app on port $PORT..."\n\
+exec uvicorn forge_kernel:app --host 0.0.0.0 --port $PORT --log-level debug\n'\
+> start.sh && chmod +x start.sh
+
 ENV PORT=8000
-EXPOSE 8000
 
-# Command to run the application with uvicorn
-CMD ["uvicorn", "forge_kernel:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["./start.sh"]
