@@ -33,7 +33,7 @@ export function LayoutContent({ children }: LayoutContentProps) {
   const isDark = theme === 'dark'
   const [hasEntered, setHasEntered] = useState(false)
   const pathname = usePathname()
-  const token = getCookie('token')
+
 
   useEffect(() => {
     const entered = getCookie('entered')

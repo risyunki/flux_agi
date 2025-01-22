@@ -14,7 +14,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { type Agent } from "@/lib/services/agent.service"
 import { Task, taskService } from '@/lib/services/task.service';
-import { websocketService } from '@/lib/services/websocket.service';
+import { websocketService, type WebSocketMessage } from '@/lib/services/websocket.service';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation'
@@ -124,9 +124,9 @@ export default function Home() {
     fetchTasks()
 
     // Set up WebSocket connection for real-time updates
-    const handleWebSocketMessage = (data: any) => {
+    const handleWebSocketMessage = (data: WebSocketMessage) => {
       if (data.type === 'task_update') {
-        const updatedTask = data.data
+        const updatedTask = data.data as Task
         if (updatedTask.status === 'completed') {
           toast.success(`Task completed: ${updatedTask.description}`)
         }

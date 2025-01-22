@@ -42,7 +42,17 @@ app = FastAPI(
 # Add health check endpoint
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check endpoint for monitoring service status"""
+    try:
+        return {
+            "status": "healthy",
+            "version": "2.0.0",
+            "timestamp": datetime.now().isoformat(),
+            "environment": os.getenv("ENVIRONMENT", "production")
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 # Configure CORS
 allowed_origins = os.getenv(
@@ -389,26 +399,24 @@ class ForgeKernel:
 
         @app.websocket("/ws")
         async def websocket_endpoint(websocket: WebSocket):
-            await self.ws_manager.connect(websocket)
             try:
+                await websocket.accept()
                 while True:
-                    data = await websocket.receive_text()
                     try:
-                        message = json.loads(data)
-                        if message.get("type") == "chat":
-                            # Handle chat messages
-                            response = await handle_chat_message(message)
-                            await websocket.send_json(response)
-                        else:
-                            # Default acknowledgment for other messages
-                            await websocket.send_json({"type": "acknowledgment", "data": "Message received"})
-                    except json.JSONDecodeError:
-                        logger.error("Failed to parse WebSocket message")
-            except WebSocketDisconnect:
-                self.ws_manager.disconnect(websocket)
+                        data = await websocket.receive_text()
+                        # Process the received data
+                        await websocket.send_text(f"Message received: {data}")
+                    except WebSocketDisconnect:
+                        logger.info("WebSocket client disconnected normally")
+                        break
+                    except Exception as e:
+                        logger.error(f"Error in WebSocket communication: {str(e)}")
+                        await websocket.close(code=1001)
+                        break
             except Exception as e:
-                logger.error(f"WebSocket error: {e}")
-                self.ws_manager.disconnect(websocket)
+                logger.error(f"Failed to establish WebSocket connection: {str(e)}")
+                if websocket.client_state != WebSocketState.DISCONNECTED:
+                    await websocket.close(code=1001)
 
     async def _spawn_task(self, task_data: Dict[str, Any], request: Request) -> Task:
         """

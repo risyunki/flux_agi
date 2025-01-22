@@ -11,7 +11,7 @@ export interface WebSocketMessage {
 export interface AgentActivity {
   agent_id: string;
   activity: string;
-  details: Record<string, any>;
+  details: Record<string, string | number | boolean | null>;
 }
 
 export interface TaskProgress {
