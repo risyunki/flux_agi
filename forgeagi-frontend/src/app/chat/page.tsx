@@ -5,17 +5,15 @@ import React from 'react'
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Send, Bot, Hammer, Crown, CircleDot } from "lucide-react"
+import { Send, Bot, Hammer, Crown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Agent } from "@/lib/services/agent.service"
 
 interface Message {
   id: string
-  role: 'user' | 'assistant' | 'system'
+  role: 'user' | 'assistant'
   content: string
   timestamp: Date
-  activity?: string
-  progress?: number
 }
 
 type AgentType = 'assistant' | 'coordinator' | 'architect'
@@ -45,9 +43,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [agents, setAgents] = useState<Agent[]>([])
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
-  const [currentTask, setCurrentTask] = useState<string | null>(null)
   const ws = useRef<WebSocket | null>(null)
-  const [mode, setMode] = useState<'chat' | 'task'>('chat')
 
   const scrollToBottom = useCallback((node: HTMLDivElement | null) => {
     if (node) {
@@ -92,17 +88,7 @@ export default function ChatPage() {
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data)
-      
-      if (data.type === 'chat_response' && selectedAgent?.id === data.data.agent_id) {
-        setMessages(prev => [...prev, {
-          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          role: 'assistant',
-          content: data.data.message,
-          timestamp: new Date()
-        }])
-        setIsLoading(false)
-      }
-      else if (data.type === 'task_update' && data.data.result) {
+      if (data.type === 'task_update' && data.data.result) {
         setMessages(prev => [...prev, {
           id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           role: 'assistant',
@@ -110,27 +96,6 @@ export default function ChatPage() {
           timestamp: new Date()
         }])
         setIsLoading(false)
-        setCurrentTask(null)
-      }
-      
-      else if (data.type === 'agent_activity' && selectedAgent?.id === data.data.agent_id) {
-        setMessages(prev => [...prev, {
-          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          role: 'system',
-          content: data.data.activity,
-          timestamp: new Date(),
-          activity: data.data.activity
-        }])
-      }
-      
-      else if (data.type === 'task_progress' && currentTask === data.data.task_id) {
-        setMessages(prev => [...prev, {
-          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          role: 'system',
-          content: data.data.current_action || 'Processing...',
-          timestamp: new Date(),
-          progress: data.data.progress
-        }])
       }
     }
 
@@ -144,7 +109,7 @@ export default function ChatPage() {
         ws.current.close()
       }
     }
-  }, [selectedAgent?.id, currentTask])
+  }, [])
 
   // Add effect to change message when agent changes
   useEffect(() => {
@@ -173,39 +138,18 @@ export default function ChatPage() {
     setIsLoading(true)
 
     try {
-      if (mode === 'chat') {
-        const response = await fetch('http://localhost:8000/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: input,
-            agent_id: selectedAgent?.id
-          }),
-        })
+      const response = await fetch('http://localhost:8000/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          description: input
+        }),
+      })
 
-        if (!response.ok) {
-          throw new Error('Failed to send message')
-        }
-      } else {
-        const response = await fetch('http://localhost:8000/tasks', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            description: input,
-            agent_id: selectedAgent?.id
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to create task')
-        }
-        
-        const data = await response.json()
-        setCurrentTask(data.id)
+      if (!response.ok) {
+        throw new Error('Failed to send message')
       }
     } catch (error) {
       console.error('Error:', error)
@@ -216,46 +160,27 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-screen">
       <div className="border-b dark:border-stone-800 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {agents.map((agent) => (
-              <Button
-                key={agent.id}
-                variant={selectedAgent?.id === agent.id ? "default" : "ghost"}
-                className="flex items-center gap-2"
-                onClick={() => {
-                  setSelectedAgent(agent)
-                  setMessages([{
-                    id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                    role: 'assistant',
-                    content: getInitialMessage(agent),
-                    timestamp: new Date()
-                  }])
-                }}
-              >
-                {agent.type in agentIcons && React.createElement(agentIcons[agent.type as AgentType], { className: "w-4 h-4" })}
-                {agent.name}
-              </Button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          {agents.map((agent) => (
             <Button
-              variant={mode === 'chat' ? "default" : "ghost"}
-              onClick={() => setMode('chat')}
+              key={agent.id}
+              variant={selectedAgent?.id === agent.id ? "default" : "ghost"}
               className="flex items-center gap-2"
+              onClick={() => {
+                setSelectedAgent(agent)
+                // Clear messages and set new initial message
+                setMessages([{
+                  id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  role: 'assistant',
+                  content: getInitialMessage(agent),
+                  timestamp: new Date()
+                }])
+              }}
             >
-              <Bot className="w-4 h-4" />
-              Chat
+              {agent.type in agentIcons && React.createElement(agentIcons[agent.type as AgentType], { className: "w-4 h-4" })}
+              {agent.name}
             </Button>
-            <Button
-              variant={mode === 'task' ? "default" : "ghost"}
-              onClick={() => setMode('task')}
-              className="flex items-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              Create Task
-            </Button>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -274,8 +199,6 @@ export default function ChatPage() {
                 className={`max-w-[80%] p-4 ${
                   message.role === 'user' 
                     ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' 
-                    : message.role === 'system'
-                    ? 'bg-stone-100 dark:bg-stone-900 border-stone-200 dark:border-stone-700'
                     : 'bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700'
                 }`}
               >
@@ -285,25 +208,7 @@ export default function ChatPage() {
                     {selectedAgent.name}
                   </div>
                 )}
-                
-                {message.role === 'system' && message.activity && (
-                  <div className="flex items-center gap-2 mb-2 text-sm text-blue-500 dark:text-blue-400">
-                    <CircleDot className="w-4 h-4 animate-pulse" />
-                    Activity Update
-                  </div>
-                )}
-                
                 <p className="whitespace-pre-wrap">{message.content}</p>
-                
-                {message.progress !== undefined && (
-                  <div className="mt-2 w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
-                    <div 
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${message.progress * 100}%` }}
-                    />
-                  </div>
-                )}
-                
                 <div className="text-xs mt-2 opacity-70">
                   {message.timestamp.toLocaleTimeString()}
                 </div>
@@ -341,7 +246,7 @@ export default function ChatPage() {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === 'chat' ? `Chat with ${selectedAgent?.name || 'AI'}...` : `Create task for ${selectedAgent?.name || 'AI'}...`}
+            placeholder={`Message ${selectedAgent?.name || 'AI'}...`}
             disabled={!isConnected || isLoading}
             className="flex-1 bg-white dark:bg-stone-900"
           />
@@ -350,7 +255,7 @@ export default function ChatPage() {
             disabled={!isConnected || isLoading || !input.trim()}
             variant="default"
           >
-            {mode === 'chat' ? <Bot className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+            <Send className="h-4 w-4" />
           </Button>
         </form>
       </div>

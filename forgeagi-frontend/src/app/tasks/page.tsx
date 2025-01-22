@@ -5,10 +5,10 @@ import { useState, useEffect } from 'react'
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Bot, Hammer, Crown, Send, CircleDot } from "lucide-react"
+import { Bot, Hammer, Crown, Send } from "lucide-react"
 import { Agent } from "@/lib/services/agent.service"
 import { Task } from '@/lib/services/task.service'
-import { websocketService, type WebSocketMessage, type AgentActivity, type TaskProgress } from '@/lib/services/websocket.service'
+import { websocketService, type WebSocketMessage } from '@/lib/services/websocket.service'
 import { toast } from 'sonner'
 
 type AgentType = 'assistant' | 'coordinator' | 'architect'
@@ -19,17 +19,10 @@ const agentIcons = {
   architect: Hammer,
 } as const
 
-interface TaskWithDetails extends Task {
-  currentAction?: string | null;
-  progress?: number;
-  agentActivity?: string;
-  agent_id?: string;
-}
-
 export default function TasksPage() {
   const [agents, setAgents] = useState<Agent[]>([])
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
-  const [tasks, setTasks] = useState<TaskWithDetails[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
   const [description, setDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -81,42 +74,11 @@ export default function TasksPage() {
         setTasks(prev => {
           const index = prev.findIndex(task => task.id === updatedTask.id)
           if (index === -1) {
-            return [...prev, updatedTask as TaskWithDetails]
+            return [...prev, updatedTask]
           }
           const newTasks = [...prev]
-          newTasks[index] = { ...newTasks[index], ...updatedTask }
+          newTasks[index] = updatedTask
           return newTasks
-        })
-      }
-      else if (message.type === 'agent_activity') {
-        const activity = message.data as AgentActivity
-        setTasks(prev => {
-          const index = prev.findIndex(task => task.agent_id === activity.agent_id)
-          if (index !== -1) {
-            const newTasks = [...prev]
-            newTasks[index] = { 
-              ...newTasks[index], 
-              agentActivity: activity.activity 
-            }
-            return newTasks
-          }
-          return prev
-        })
-      }
-      else if (message.type === 'task_progress') {
-        const progress = message.data as TaskProgress
-        setTasks(prev => {
-          const index = prev.findIndex(task => task.id === progress.task_id)
-          if (index !== -1) {
-            const newTasks = [...prev]
-            newTasks[index] = { 
-              ...newTasks[index], 
-              progress: progress.progress,
-              currentAction: progress.current_action 
-            }
-            return newTasks
-          }
-          return prev
         })
       }
     }
@@ -129,9 +91,13 @@ export default function TasksPage() {
     }
   }, [])
 
-  const createTask = async () => {
-    if (!description.trim() || !selectedAgent) return
-    
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!description.trim()) {
+      toast.error('Please enter a task description')
+      return
+    }
+
     setIsLoading(true)
     try {
       const response = await fetch('http://localhost:8000/tasks', {
@@ -139,16 +105,11 @@ export default function TasksPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          description,
-          agent_id: selectedAgent.id,
-        }),
+        body: JSON.stringify({ description }),
       })
 
       if (!response.ok) throw new Error('Failed to create task')
       
-      const newTask = await response.json()
-      setTasks(prev => [...prev, newTask])
       setDescription('')
       toast.success('Task created successfully')
     } catch (error) {
@@ -168,13 +129,12 @@ export default function TasksPage() {
 
       <div className="grid gap-8 md:grid-cols-[1fr,300px]">
         <div className="space-y-8">
-          <form onSubmit={createTask} className="flex gap-4">
+          <form onSubmit={handleSubmit} className="flex gap-4">
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter your task description..."
               className="flex-1"
-              disabled={isLoading}
             />
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
@@ -194,17 +154,6 @@ export default function TasksPage() {
                     <p className="text-sm text-stone-500 dark:text-stone-400">
                       {task.status === 'completed' ? 'Completed' : 'In Progress'}
                     </p>
-                    {task.agentActivity && (
-                      <p className="text-sm text-blue-500">
-                        <CircleDot className="w-4 h-4 inline mr-1 animate-pulse" />
-                        {task.agentActivity}
-                      </p>
-                    )}
-                    {task.currentAction && (
-                      <p className="text-sm text-stone-600">
-                        Current Action: {task.currentAction}
-                      </p>
-                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     {task.status === 'in_progress' && (
@@ -215,21 +164,6 @@ export default function TasksPage() {
                     )}
                   </div>
                 </div>
-                
-                {task.progress !== undefined && (
-                  <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
-                    <div 
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${task.progress * 100}%` }}
-                    />
-                  </div>
-                )}
-
-                {task.result && (
-                  <div className="mt-2 p-2 bg-stone-50 dark:bg-stone-900 rounded">
-                    <p className="text-sm whitespace-pre-wrap">{task.result}</p>
-                  </div>
-                )}
               </Card>
             ))}
           </div>

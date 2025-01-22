@@ -1,34 +1,57 @@
 # Dependencies
-node_modules
-.pnp
+node_modules/
+.pnp/
 .pnp.js
-venv/
-__pycache__/
-*.py[cod]
-*$py.class
 
 # Testing
-.pytest_cache/
-coverage
-.coverage
-htmlcov/
+coverage/
 
-# Production
-build
+# Next.js
+.next/
+out/
+build/
 dist/
-*.egg-info/
 
-# Environment
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
 
 # IDE
 .idea/
@@ -36,17 +59,5 @@ yarn-error.log*
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Next.js
-.next/
-out/
-
-# Database
-*.sqlite
-*.db
-
-# Misc
-*.log
+# Vercel
+.vercel

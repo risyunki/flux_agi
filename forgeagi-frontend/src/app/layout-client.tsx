@@ -9,13 +9,13 @@ import {
   FileText,
   Settings,
   MessageSquare,
-  Github
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Toaster } from "sonner"
 import Image from "next/image"
 import { usePathname } from 'next/navigation'
 import { getCookie } from 'cookies-next'
+import { useTheme } from 'next-themes'
 
 interface LayoutContentProps {
   children: ReactNode
@@ -29,13 +29,13 @@ interface Link {
 
 export function LayoutContent({ children }: LayoutContentProps) {
   const [open, setOpen] = useState(false)
-  const [isDark, setIsDark] = useState(false)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const [hasEntered, setHasEntered] = useState(false)
   const pathname = usePathname()
+  const token = getCookie('token')
 
   useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains('dark')
-    setIsDark(isDarkMode)
     const entered = getCookie('entered')
     setHasEntered(!!entered)
   }, [])
@@ -66,11 +66,6 @@ export function LayoutContent({ children }: LayoutContentProps) {
       href: "/settings",
       icon: <Settings className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
     },
-    {
-      label: "GitHub",
-      href: "https://github.com/Fildadelo/forgelabs",
-      icon: <Github className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
-    }
   ]
 
   if (pathname === '/enter') {

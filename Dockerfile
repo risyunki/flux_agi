@@ -25,5 +25,5 @@ COPY ./forgeagi-backend .
 ENV PORT=8000
 EXPOSE 8000
 
-# Command to run the application
-CMD ["python", "forge_kernel.py"] 
+# Command to run the application with uvicorn
+CMD ["uvicorn", "forge_kernel:app", "--host", "0.0.0.0", "--port", "8000"] 

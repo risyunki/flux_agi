@@ -39,10 +39,15 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Add health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
 # Configure CORS
 allowed_origins = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:3001,https://forgelabs-six.vercel.app,https://forgeai.xyz"
+    "http://localhost:3000,http://localhost:3001,http://localhost:3002,https://forgelabs-six.vercel.app,https://forgeagi.xyz"
 ).split(",")
 
 logger.info(f"Configuring CORS with allowed origins: {allowed_origins}")

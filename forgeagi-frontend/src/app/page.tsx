@@ -5,7 +5,6 @@ import {
   Bot,
   Hammer,
   Crown,
-  Telescope,
   X,
   Brain,
   CircleDot
@@ -20,7 +19,6 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
-import { config } from '@/lib/config';
 
 type AgentType = 'assistant' | 'coordinator' | 'architect' | 'engineer' | 'researcher';
 
@@ -29,7 +27,7 @@ const agentIcons = {
   coordinator: Crown,
   architect: Hammer,
   engineer: Brain,
-  researcher: Telescope
+  researcher: CircleDot
 } as const;
 
 const agentDetails = {
@@ -105,34 +103,28 @@ export default function Home() {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch(`${config.apiUrl}/agents`)
+        const response = await fetch('http://localhost:8000/agents')
         if (!response.ok) throw new Error('Failed to fetch agents')
         const data = await response.json()
         const agentsList = Array.isArray(data.agents) ? data.agents : []
         setAgents(agentsList)
       } catch (error) {
         console.error('Error fetching agents:', error)
-        toast.error('Failed to fetch agents')
+        toast.error('Failed to load agents')
+        setAgents([])
       }
     }
 
     const fetchTasks = async () => {
-      try {
-        const tasks = await taskService.getTasks()
-        setTasks(tasks)
-      } catch (error) {
-        console.error('Error fetching tasks:', error)
-        toast.error('Failed to fetch tasks')
-      }
+      const fetchedTasks = await taskService.getTasks()
+      setTasks(fetchedTasks)
     }
 
     fetchAgents()
     fetchTasks()
 
     // Set up WebSocket connection for real-time updates
-    const ws = websocketService.connect()
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
+    const handleWebSocketMessage = (data: any) => {
       if (data.type === 'task_update') {
         const updatedTask = data.data
         if (updatedTask.status === 'completed') {
@@ -150,7 +142,11 @@ export default function Home() {
       }
     }
 
+    websocketService.addMessageHandler(handleWebSocketMessage)
+    websocketService.connect()
+
     return () => {
+      websocketService.removeMessageHandler(handleWebSocketMessage)
       websocketService.disconnect()
     }
   }, [])
@@ -192,11 +188,13 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50"
           onClick={() => setSelectedAgent(null)}
         >
           <motion.div
-            className="bg-white dark:bg-stone-900 rounded-2xl p-6 max-w-lg w-full space-y-4"
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            className="relative bg-white dark:bg-stone-900 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-xl"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
