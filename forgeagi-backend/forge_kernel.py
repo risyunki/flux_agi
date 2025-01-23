@@ -56,58 +56,28 @@ async def startup_event():
     logger.info(f"Environment: {os.environ.get('ENVIRONMENT', 'production')}")
     logger.info(f"Port: {os.environ.get('PORT', '8000')}")
     logger.info(f"Allowed Origins: {allowed_origins}")
-
-@app.get("/")
-async def root():
-    """Root endpoint that returns basic API information"""
-    logger.debug("Root endpoint called")
-    return {
-        "name": "Forge AI API",
-        "version": "2.0.0",
-        "status": "running"
-    }
-
-@app.get("/health")
-def health_check():
-    """Health check endpoint"""
-    logger.debug("Health check called")
-    return {"status": "healthy"}
-
-# Configure CORS
-allowed_origins = os.getenv(
-    "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:3001,http://localhost:3002,https://forgelabs-six.vercel.app,https://forgeagi.xyz"
-).split(",")
-
-logger.info(f"Configuring CORS with allowed origins: {allowed_origins}")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    logger.info(f"Incoming request: {request.method} {request.url}")
-    logger.info(f"Origin: {request.headers.get('origin')}")
-    response = await call_next(request)
-    logger.info(f"Response status: {response.status_code}")
-    return response
+    
+    # Log API keys status (without revealing them)
+    openai_key = bool(os.getenv("OPENAI_API_KEY"))
+    anthropic_key = bool(os.getenv("ANTHROPIC_API_KEY"))
+    logger.info(f"OpenAI API Key present: {openai_key}")
+    logger.info(f"Anthropic API Key present: {anthropic_key}")
 
 # ------------------------------------------------------
 # Attempt Dynamic Agent Import
 # ------------------------------------------------------
-try:
-    from agents.bragi import bragi
-    BRAGI_AVAILABLE = True
-    logger.info("Successfully imported Bragi agent")
-except ImportError as e:
+if os.getenv("OPENAI_API_KEY"):
+    try:
+        from agents.bragi import bragi
+        BRAGI_AVAILABLE = True
+        logger.info("Successfully imported Bragi agent")
+    except ImportError as e:
+        BRAGI_AVAILABLE = False
+        logger.error(f"Unable to import 'bragi' agent: {str(e)}")
+        logger.warning("Task processing features may be limited.")
+else:
     BRAGI_AVAILABLE = False
-    logger.error(f"Unable to import 'bragi' agent: {str(e)}")
-    logger.warning("Task processing features may be limited.")
+    logger.warning("OpenAI API key not found - agent features disabled")
 
 # ------------------------------------------------------
 # Enum Definitions
@@ -277,6 +247,21 @@ class ForgeKernel:
         """
         Register HTTP endpoints and WebSocket endpoints with the FastAPI application.
         """
+        @app.get("/")
+        def root():
+            """Root endpoint"""
+            logger.debug("Root endpoint called")
+            return {
+                "status": "running",
+                "api_ready": bool(os.getenv("OPENAI_API_KEY"))
+            }
+
+        @app.get("/health")
+        def health_check():
+            """Health check endpoint - always returns healthy"""
+            logger.debug("Health check called")
+            return {"status": "healthy"}
+
         @app.get("/agents")
         async def list_agents():
             return {
