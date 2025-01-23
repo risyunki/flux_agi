@@ -38,6 +38,8 @@ class WebSocketManager:
     """
     def __init__(self) -> None:
         self.active_connections: List[WebSocket] = []
+        self.last_ping: Dict[WebSocket, float] = {}
+        self.ping_interval = 30  # seconds
 
     async def connect(self, websocket: WebSocket) -> None:
         """
@@ -45,6 +47,7 @@ class WebSocketManager:
         """
         await websocket.accept()
         self.active_connections.append(websocket)
+        self.last_ping[websocket] = datetime.now().timestamp()
         logger.info(
             f"WebSocket connected. Total active connections: {len(self.active_connections)}"
         )
@@ -55,6 +58,7 @@ class WebSocketManager:
         """
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
+            self.last_ping.pop(websocket, None)
             logger.info(
                 f"WebSocket disconnected. Remaining connections: {len(self.active_connections)}"
             )
@@ -69,14 +73,25 @@ class WebSocketManager:
             "timestamp": datetime.now().isoformat()
         }
         
+        disconnected = []
         for connection in self.active_connections:
             try:
+                # Check if connection is still alive
+                if (datetime.now().timestamp() - self.last_ping.get(connection, 0)) > self.ping_interval * 2:
+                    logger.warning(f"Connection timeout detected, closing connection")
+                    disconnected.append(connection)
+                    continue
+
                 await connection.send_json(message)
             except WebSocketDisconnect:
-                self.disconnect(connection)
+                disconnected.append(connection)
             except Exception as e:
                 logger.error(f"Failed to send message to client: {e}")
-                self.disconnect(connection)
+                disconnected.append(connection)
+        
+        # Clean up disconnected clients
+        for connection in disconnected:
+            self.disconnect(connection)
 
     async def broadcast_agent_activity(self, agent_id: str, activity: str, details: Dict[str, Any] = None) -> None:
         """
@@ -98,6 +113,20 @@ class WebSocketManager:
             "status": status,
             "current_action": current_action,
         })
+
+    async def handle_ping(self, websocket: WebSocket) -> None:
+        """
+        Handle ping message from client and update last ping time.
+        """
+        self.last_ping[websocket] = datetime.now().timestamp()
+        try:
+            await websocket.send_json({
+                "type": "pong",
+                "data": {"timestamp": datetime.now().isoformat()}
+            })
+        except Exception as e:
+            logger.error(f"Failed to send pong: {e}")
+            self.disconnect(websocket)
 
 # ------------------------------------------------------
 # FastAPI App Configuration
@@ -354,14 +383,14 @@ class ForgeKernel:
         )
 
         self.tasks.append(task)
+        
+        # Broadcast task creation immediately
         await ws_manager.broadcast("task_created", task.to_dict())
+        await ws_manager.broadcast_task_progress(
+            task.id, 0.1, "started", "Initializing task processing"
+        )
 
         try:
-            # Send initial progress update
-            await ws_manager.broadcast_task_progress(
-                task.id, 0.1, "started", "Initializing task processing"
-            )
-
             # Log which agent processes the task
             logger.info(f"Processing task {task.id} via {task.agent_id}")
             
@@ -378,15 +407,17 @@ class ForgeKernel:
             else:
                 result_text = bragi.process_task(task.id, task.description)
             
-            # Send completion progress
-            await ws_manager.broadcast_task_progress(
-                task.id, 1.0, "completed", "Task completed successfully"
-            )
-            
+            # Update task with result
             task.result = result_text
             task.status = TaskStatus.COMPLETED
             task.updated_at = datetime.now()
             self.metrics.tasks_completed += 1
+            
+            # Send completion progress and task update
+            await ws_manager.broadcast_task_progress(
+                task.id, 1.0, "completed", "Task completed successfully"
+            )
+            await ws_manager.broadcast("task_update", task.to_dict())
             
         except Exception as exc:
             logger.error(f"Failed to process task {task.id}: {exc}")
@@ -395,12 +426,12 @@ class ForgeKernel:
             task.updated_at = datetime.now()
             self.metrics.tasks_failed += 1
             
-            # Send failure progress
+            # Send failure progress and task update
             await ws_manager.broadcast_task_progress(
                 task.id, 1.0, "failed", f"Task failed: {str(exc)}"
             )
+            await ws_manager.broadcast("task_update", task.to_dict())
 
-        await ws_manager.broadcast("task_update", task.to_dict())
         return task
 
     def run(self, port: int = None) -> None:
@@ -506,10 +537,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     message_type = data["type"]
                     
                     if message_type == "ping":
-                        await websocket.send_json({
-                            "type": "pong",
-                            "data": {"timestamp": datetime.now().isoformat()}
-                        })
+                        await ws_manager.handle_ping(websocket)
                     else:
                         # Handle other message types
                         await ws_manager.broadcast(message_type, data.get("data", {}))
