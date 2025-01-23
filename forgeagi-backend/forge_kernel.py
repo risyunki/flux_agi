@@ -495,11 +495,20 @@ async def websocket_endpoint(websocket: WebSocket):
                 data = await websocket.receive_json()
                 logger.debug(f"Received WebSocket message: {data}")
                 
-                # Handle application messages
+                # Handle ping messages immediately
+                if isinstance(data, dict) and data.get("type") == "ping":
+                    await websocket.send_json({
+                        "type": "pong",
+                        "data": {"timestamp": datetime.now().isoformat()}
+                    })
+                    continue
+                
+                # Handle other application messages
                 if isinstance(data, dict) and "type" in data:
                     await ws_manager.broadcast(data["type"], data.get("data", {}))
             
             except WebSocketDisconnect:
+                logger.info("WebSocket client disconnected normally")
                 break
             except Exception as e:
                 logger.error(f"Error processing WebSocket message: {str(e)}")
