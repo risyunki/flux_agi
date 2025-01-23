@@ -110,8 +110,8 @@ allowed_origins = [
     "http://localhost:3001", 
     "http://localhost:3002",
     "https://forgelabs-six.vercel.app",
-    "https://forgeai.xyz",
-    "https://www.forgeai.xyz",
+    "https://forgeagi.xyz",
+    "https://www.forgeagi.xyz",
     "https://forgelabs-production.up.railway.app"
 ]
 
