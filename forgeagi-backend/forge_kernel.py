@@ -411,10 +411,11 @@ class ForgeKernel:
 # Create the kernel instance
 kernel = ForgeKernel()
 
-# Improved WebSocket CORS middleware
+# ------------------------------------------------------
+# CORS Middleware for WebSocket
+# ------------------------------------------------------
 @app.middleware("http")
-async def add_cors_headers(request: Request, call_next):
-    # Special handling for WebSocket upgrade requests
+async def cors_middleware(request: Request, call_next):
     if request.headers.get("upgrade", "").lower() == "websocket":
         origin = request.headers.get("origin")
         if origin in allowed_origins:
@@ -454,6 +455,7 @@ async def websocket_endpoint(websocket: WebSocket):
         # Handle CORS for WebSocket upgrade
         origin = websocket.headers.get("origin")
         if origin not in allowed_origins:
+            logger.warning(f"Rejected WebSocket connection from unauthorized origin: {origin}")
             await websocket.close(code=1008)  # Policy violation
             return
 
