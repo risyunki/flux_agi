@@ -9,6 +9,7 @@ import {
   FileText,
   Settings,
   MessageSquare,
+  Github,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Toaster } from "sonner"
@@ -33,7 +34,6 @@ export function LayoutContent({ children }: LayoutContentProps) {
   const isDark = theme === 'dark'
   const [hasEntered, setHasEntered] = useState(false)
   const pathname = usePathname()
-
 
   useEffect(() => {
     const entered = getCookie('entered')
@@ -65,6 +65,11 @@ export function LayoutContent({ children }: LayoutContentProps) {
       label: "Settings",
       href: "/settings",
       icon: <Settings className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
+    },
+    {
+      label: "GitHub",
+      href: "https://github.com/forgeai/forge",
+      icon: <Github className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
     },
   ]
 

@@ -1,11 +1,11 @@
-import { Task } from './task.service';
-import { Agent } from './agent.service';
-import { config } from '../config';
+import { config } from '../config'
+import { Task } from './task.service'
+
+export type MessageHandler = (message: WebSocketMessage) => void
 
 export interface WebSocketMessage {
-  type: string;
-  data: Task | Agent | AgentActivity | TaskProgress;
-  timestamp: string;
+  type: string
+  data: Task | Record<string, unknown>
 }
 
 export interface AgentActivity {
@@ -21,107 +21,160 @@ export interface TaskProgress {
   current_action: string | null;
 }
 
-interface MessageHandler {
-  (message: WebSocketMessage): void;
-}
-
 export class WebSocketService {
-  private ws: WebSocket | null = null;
-  private messageHandlers: Set<MessageHandler> = new Set();
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 10; 
-  private reconnectTimeout: NodeJS.Timeout | null = null;
-  private isConnecting = false;
+  private ws: WebSocket | null = null
+  private messageHandlers: Set<MessageHandler> = new Set()
+  private reconnectAttempts = 0
+  private maxReconnectAttempts = 10
+  private reconnectTimeout: NodeJS.Timeout | null = null
+  private isConnecting = false
+  private heartbeatInterval: NodeJS.Timeout | null = null
+  private lastPongTime: number = 0
 
   connect(): WebSocket | null {
     if (this.ws?.readyState === WebSocket.OPEN) {
-      return this.ws;
+      return this.ws
     }
 
     if (this.isConnecting) {
-      return null;
+      return null
     }
 
-    this.isConnecting = true;
+    this.isConnecting = true
 
     try {
-      this.ws = new WebSocket(config.wsUrl);
+      this.ws = new WebSocket(config.wsUrl)
       
-      this.ws.onmessage = (event: MessageEvent) => {
-        try {
-          const message = JSON.parse(event.data) as WebSocketMessage;
-          this.messageHandlers.forEach(handler => handler(message));
-        } catch (error) {
-          console.warn('Failed to parse WebSocket message:', error);
-        }
-      };
+      this.ws.onmessage = this.onmessage.bind(this)
+      this.ws.onerror = this.onerror.bind(this)
+      this.ws.onclose = this.onclose.bind(this)
+      this.ws.onopen = this.onopen.bind(this)
 
-      this.ws.onerror = () => {
-        console.warn('WebSocket connection failed');
-        this.attemptReconnect();
-      };
-
-      this.ws.onclose = () => {
-        console.info('WebSocket connection closed');
-        this.ws = null;
-        this.attemptReconnect();
-      };
-
-      this.ws.onopen = () => {
-        console.info('WebSocket connection established');
-        this.isConnecting = false;
-        this.reconnectAttempts = 0;
-        if (this.reconnectTimeout) {
-          clearTimeout(this.reconnectTimeout);
-          this.reconnectTimeout = null;
-        }
-      };
-
-      return this.ws;
+      return this.ws
     } catch (error) {
-      console.warn('Failed to create WebSocket connection:', error);
-      this.isConnecting = false;
-      this.attemptReconnect();
-      return null;
+      console.error('WebSocket connection error:', error)
+      this.isConnecting = false
+      this.attemptReconnect()
+      return null
+    }
+  }
+
+  private onmessage(event: MessageEvent) {
+    try {
+      const message = JSON.parse(event.data) as WebSocketMessage
+      
+      // Handle connection status messages
+      if (message.type === 'connection_status') {
+        console.log('Connection status:', message.data.status)
+        if (message.data.status === 'connected') {
+          this.startHeartbeat()
+        }
+      }
+      
+      // Handle pong messages for heartbeat
+      if (message.type === 'pong') {
+        this.lastPongTime = Date.now()
+        return
+      }
+
+      this.messageHandlers.forEach(handler => {
+        try {
+          handler(message)
+        } catch (error) {
+          console.error('Error in message handler:', error)
+        }
+      })
+    } catch (error) {
+      console.error('Error parsing WebSocket message:', error)
+    }
+  }
+
+  private onerror() {
+    console.error('WebSocket error')
+    this.stopHeartbeat()
+    this.attemptReconnect()
+  }
+
+  private onclose() {
+    console.log('WebSocket closed')
+    this.isConnecting = false
+    this.stopHeartbeat()
+    this.attemptReconnect()
+  }
+
+  private onopen() {
+    console.log('WebSocket connected')
+    this.isConnecting = false
+    this.reconnectAttempts = 0
+    this.startHeartbeat()
+  }
+
+  private startHeartbeat() {
+    this.stopHeartbeat()
+    this.heartbeatInterval = setInterval(() => {
+      if (this.ws?.readyState === WebSocket.OPEN) {
+        // Send ping message
+        this.ws.send(JSON.stringify({
+          type: 'ping',
+          data: { timestamp: new Date().toISOString() }
+        }))
+
+        // Check if we received a pong within the last 10 seconds
+        if (Date.now() - this.lastPongTime > 10000) {
+          console.warn('No pong received, reconnecting...')
+          this.ws.close()
+        }
+      }
+    }, 5000) // Send ping every 5 seconds
+  }
+
+  private stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval)
+      this.heartbeatInterval = null
     }
   }
 
   private attemptReconnect() {
-    if (this.reconnectAttempts < this.maxReconnectAttempts && !this.isConnecting) {
-      this.reconnectAttempts++;
-      const delay = Math.min(1000 * Math.pow(1.5, this.reconnectAttempts), 10000); 
-      console.info(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      
-      if (this.reconnectTimeout) {
-        clearTimeout(this.reconnectTimeout);
-      }
-
-      this.reconnectTimeout = setTimeout(() => {
-        this.connect();
-      }, delay);
-    } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.warn('Max reconnection attempts reached. Please check if the server is running.');
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.error('Max reconnection attempts reached')
+      return
     }
+
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout)
+    }
+
+    this.reconnectAttempts++
+    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000)
+    
+    console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`)
+    
+    this.reconnectTimeout = setTimeout(() => {
+      this.connect()
+    }, delay)
   }
 
   disconnect(): void {
-    this.reconnectAttempts = this.maxReconnectAttempts; 
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
+    this.stopHeartbeat()
     if (this.ws) {
-      this.ws.close();
-      this.ws = null;
+      this.ws.close()
+      this.ws = null
     }
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout)
+      this.reconnectTimeout = null
+    }
+    this.reconnectAttempts = 0
+    this.isConnecting = false
   }
 
   addMessageHandler(handler: MessageHandler): void {
-    this.messageHandlers.add(handler);
+    this.messageHandlers.add(handler)
   }
 
   removeMessageHandler(handler: MessageHandler): void {
-    this.messageHandlers.delete(handler);
+    this.messageHandlers.delete(handler)
   }
 }
 

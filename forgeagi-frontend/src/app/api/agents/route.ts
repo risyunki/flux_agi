@@ -1,11 +1,16 @@
+import { NextResponse } from 'next/server'
+import { config } from '@/lib/config'
+
 // Get all agents and their status
 export async function GET() {
   try {
-    const response = await fetch('http://localhost:8000/agents')
-    if (!response.ok) throw new Error('Failed to fetch agents')
+    const response = await fetch(`${config.apiUrl}/agents`)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
     const data = await response.json()
-    return Response.json(data)
+    return NextResponse.json(data)
   } catch {
-    return Response.json({ error: 'Failed to fetch agents' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch agents' }, { status: 500 })
   }
-} 
+}

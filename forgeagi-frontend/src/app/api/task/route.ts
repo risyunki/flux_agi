@@ -1,7 +1,9 @@
+import { config } from '@/lib/config'
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const response = await fetch('http://localhost:8000/tasks', {
+    const response = await fetch(`${config.apiUrl}/tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -14,4 +16,4 @@ export async function POST(request: Request) {
   } catch {
     return Response.json({ error: 'Failed to create task' }, { status: 500 })
   }
-} 
+}

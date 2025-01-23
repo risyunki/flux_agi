@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { config } from "@/lib/config"
 
 export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true)
@@ -38,7 +39,7 @@ export default function SettingsPage() {
 
     setIsSavingOpenAI(true)
     try {
-      const response = await fetch('http://localhost:8000/settings/openai', {
+      const response = await fetch(`${config.apiUrl}/settings/openai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ export default function SettingsPage() {
 
     setIsSavingAnthropic(true)
     try {
-      const response = await fetch('http://localhost:8000/settings/anthropic', {
+      const response = await fetch(`${config.apiUrl}/settings/anthropic`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -10,6 +10,7 @@ import { Agent } from "@/lib/services/agent.service"
 import { Task } from '@/lib/services/task.service'
 import { websocketService, type WebSocketMessage } from '@/lib/services/websocket.service'
 import { toast } from 'sonner'
+import { config } from '@/lib/config'
 
 type AgentType = 'assistant' | 'coordinator' | 'architect'
 
@@ -29,7 +30,7 @@ export default function TasksPage() {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch('http://localhost:8000/agents')
+        const response = await fetch(`${config.apiUrl}/agents`)
         if (!response.ok) throw new Error('Failed to fetch agents')
         const data = await response.json()
         const agentsList = Array.isArray(data.agents) ? data.agents : []
@@ -48,7 +49,7 @@ export default function TasksPage() {
 
     const fetchTasks = async () => {
       try {
-        const response = await fetch('http://localhost:8000/tasks')
+        const response = await fetch(`${config.apiUrl}/tasks`)
         if (!response.ok) throw new Error('Failed to fetch tasks')
         const data = await response.json()
         const tasksList = Array.isArray(data.tasks) ? data.tasks : []
@@ -66,20 +67,31 @@ export default function TasksPage() {
     // Set up WebSocket connection for real-time updates
     websocketService.connect()
     const handleMessage = (message: WebSocketMessage) => {
-      if (message.type === 'task_update' && 'status' in message.data) {
-        const updatedTask = message.data as Task
-        if (updatedTask.status === 'completed') {
-          toast.success(`Task completed: ${updatedTask.description}`)
-        }
-        setTasks(prev => {
-          const index = prev.findIndex(task => task.id === updatedTask.id)
-          if (index === -1) {
-            return [...prev, updatedTask]
+      if (message.type === 'task_update') {
+        // Type guard to check if data is a Task
+        const isTask = (data: unknown): data is Task => {
+          return typeof data === 'object' && 
+                 data !== null && 
+                 'id' in data && 
+                 'description' in data && 
+                 'status' in data;
+        };
+
+        if (isTask(message.data)) {
+          const updatedTask = message.data;
+          if (updatedTask.status === 'completed') {
+            toast.success(`Task completed: ${updatedTask.description}`)
           }
-          const newTasks = [...prev]
-          newTasks[index] = updatedTask
-          return newTasks
-        })
+          setTasks(prev => {
+            const index = prev.findIndex(task => task.id === updatedTask.id)
+            if (index === -1) {
+              return [...prev, updatedTask]
+            }
+            const newTasks = [...prev]
+            newTasks[index] = updatedTask
+            return newTasks
+          })
+        }
       }
     }
 
@@ -100,7 +112,7 @@ export default function TasksPage() {
 
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:8000/tasks', {
+      const response = await fetch(`${config.apiUrl}/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

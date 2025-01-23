@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import React from 'react'
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Send, Bot, Hammer, Crown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Agent } from "@/lib/services/agent.service"
+import { config } from '@/lib/config'
+import { websocketService, WebSocketMessage } from "@/lib/services/websocket.service"
 
 interface Message {
   id: string
@@ -43,7 +45,6 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [agents, setAgents] = useState<Agent[]>([])
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
-  const ws = useRef<WebSocket | null>(null)
 
   const scrollToBottom = useCallback((node: HTMLDivElement | null) => {
     if (node) {
@@ -54,7 +55,7 @@ export default function ChatPage() {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch('http://localhost:8000/agents')
+        const response = await fetch(`${config.apiUrl}/agents`)
         if (!response.ok) throw new Error('Failed to fetch agents')
         const data = await response.json()
         setAgents(data.agents || [])
@@ -78,36 +79,28 @@ export default function ChatPage() {
   }, [])
 
   useEffect(() => {
-    // Connect to WebSocket
-    ws.current = new WebSocket('ws://localhost:8000/ws')
+    // Connect to WebSocket and set up message handler
+    websocketService.connect()
     
-    ws.current.onopen = () => {
-      setIsConnected(true)
-      console.log('Connected to WebSocket')
-    }
-
-    ws.current.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      if (data.type === 'task_update' && data.data.result) {
+    const messageHandler = (data: WebSocketMessage) => {
+      if (data.type === 'task_update' && typeof data.data === 'object' && data.data && 'result' in data.data) {
         setMessages(prev => [...prev, {
           id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           role: 'assistant',
-          content: data.data.result,
+          content: String(data.data.result),
           timestamp: new Date()
         }])
         setIsLoading(false)
       }
     }
 
-    ws.current.onclose = () => {
-      setIsConnected(false)
-      console.log('Disconnected from WebSocket')
-    }
+    websocketService.addMessageHandler(messageHandler)
+    setIsConnected(true)
 
     return () => {
-      if (ws.current) {
-        ws.current.close()
-      }
+      websocketService.removeMessageHandler(messageHandler)
+      websocketService.disconnect()
+      setIsConnected(false)
     }
   }, [])
 
@@ -138,7 +131,7 @@ export default function ChatPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('http://localhost:8000/tasks', {
+      const response = await fetch(`${config.apiUrl}/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

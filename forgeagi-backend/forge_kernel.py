@@ -10,6 +10,7 @@ import uuid
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.websockets import WebSocketState
 import uvicorn
 from dotenv import load_dotenv
 
@@ -36,7 +37,7 @@ app = FastAPI()
 # Configure CORS
 allowed_origins = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:3001,http://localhost:3002,https://forgelabs-six.vercel.app,https://forgeagi.xyz"
+    "http://localhost:3000,http://localhost:3001,http://localhost:3002,https://forgelabs-six.vercel.app,https://forgeai.xyz,https://www.forgeai.xyz"
 ).split(",")
 
 logger.info(f"Configuring CORS with allowed origins: {allowed_origins}")
@@ -48,6 +49,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add WebSocket CORS middleware
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    response = await call_next(request)
+    if request.headers.get("upgrade", "").lower() == "websocket":
+        for origin in allowed_origins:
+            if origin == request.headers.get("origin"):
+                response.headers["Access-Control-Allow-Origin"] = origin
+    return response
 
 @app.on_event("startup")
 async def startup_event():
@@ -380,24 +391,73 @@ class ForgeKernel:
 
         @app.websocket("/ws")
         async def websocket_endpoint(websocket: WebSocket):
+            """
+            WebSocket endpoint for real-time communication with clients.
+            Handles connection, message processing, and graceful disconnection.
+            """
             try:
-                await websocket.accept()
+                await self.ws_manager.connect(websocket)
+                logger.info("New WebSocket client connected")
+                
+                # Send initial connection success message
+                await websocket.send_json({
+                    "type": "connection_status",
+                    "data": {
+                        "status": "connected",
+                        "message": "Successfully connected to Forge WebSocket server"
+                    }
+                })
+                
                 while True:
                     try:
-                        data = await websocket.receive_text()
-                        # Process the received data
-                        await websocket.send_text(f"Message received: {data}")
+                        # Wait for messages from the client
+                        data = await websocket.receive_json()
+                        
+                        # Log received message
+                        logger.debug(f"Received WebSocket message: {data}")
+                        
+                        # Process the message based on its type
+                        if isinstance(data, dict) and "type" in data:
+                            message_type = data["type"]
+                            
+                            if message_type == "ping":
+                                await websocket.send_json({
+                                    "type": "pong",
+                                    "data": {"timestamp": datetime.now().isoformat()}
+                                })
+                            else:
+                                # Handle other message types
+                                await self.ws_manager.broadcast(message_type, data.get("data", {}))
+                    
                     except WebSocketDisconnect:
                         logger.info("WebSocket client disconnected normally")
+                        self.ws_manager.disconnect(websocket)
                         break
+                    
+                    except json.JSONDecodeError:
+                        logger.warning("Received invalid JSON data")
+                        await websocket.send_json({
+                            "type": "error",
+                            "data": {"message": "Invalid JSON format"}
+                        })
+                    
                     except Exception as e:
-                        logger.error(f"Error in WebSocket communication: {str(e)}")
-                        await websocket.close(code=1001)
-                        break
+                        logger.error(f"Error processing WebSocket message: {str(e)}")
+                        await websocket.send_json({
+                            "type": "error",
+                            "data": {"message": "Internal server error"}
+                        })
+                
             except Exception as e:
-                logger.error(f"Failed to establish WebSocket connection: {str(e)}")
-                if websocket.client_state != WebSocketState.DISCONNECTED:
-                    await websocket.close(code=1001)
+                logger.error(f"WebSocket connection error: {str(e)}")
+                try:
+                    # Check if the connection is still open before trying to close it
+                    if not websocket.client_state.DISCONNECTED:
+                        await websocket.close(code=1001)
+                except Exception as close_error:
+                    logger.error(f"Error closing WebSocket: {str(close_error)}")
+                finally:
+                    self.ws_manager.disconnect(websocket)
 
     async def _spawn_task(self, task_data: Dict[str, Any], request: Request) -> Task:
         """

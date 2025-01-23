@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
+import { config } from '@/lib/config'
 
 type AgentType = 'assistant' | 'coordinator' | 'architect' | 'engineer' | 'researcher';
 
@@ -103,7 +104,7 @@ export default function Home() {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch('http://localhost:8000/agents')
+        const response = await fetch(`${config.apiUrl}/agents`)
         if (!response.ok) throw new Error('Failed to fetch agents')
         const data = await response.json()
         const agentsList = Array.isArray(data.agents) ? data.agents : []

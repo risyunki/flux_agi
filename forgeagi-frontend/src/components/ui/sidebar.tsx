@@ -112,7 +112,7 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-white/40 dark:bg-stone-900/40 border-b border-white/10 backdrop-blur-xl w-full"
+          "h-14 px-4 flex flex-row md:hidden items-center justify-between bg-white/40 dark:bg-stone-900/40 border-b border-white/10 backdrop-blur-xl w-full fixed top-0 z-50"
         )}
         {...props}
       >
@@ -129,25 +129,29 @@ export const MobileSidebar = ({
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "-100%", opacity: 0 }}
               transition={{
-                duration: 0.3,
+                duration: 0.2,
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-white dark:bg-stone-900 p-10 z-[100] flex flex-col justify-between",
+                "fixed top-14 left-0 h-[calc(100vh-3.5rem)] w-64 bg-white dark:bg-stone-900 p-6 z-[100] flex flex-col justify-between border-r border-white/10 backdrop-blur-xl",
                 className
               )}
             >
+              <div className="flex flex-col space-y-4">
+                {children}
+              </div>
               <div
-                className="absolute right-10 top-10 z-50 text-stone-700 dark:text-stone-300 cursor-pointer"
+                className="absolute right-4 top-4 z-50 text-stone-700 dark:text-stone-300 cursor-pointer hover:opacity-70 transition-opacity"
                 onClick={() => setOpen(!open)}
               >
-                <X />
+                <X className="h-5 w-5" />
               </div>
-              {children}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+      {/* Add spacing to prevent content from being hidden under the fixed header */}
+      <div className="h-14 md:hidden" />
     </>
   );
 };

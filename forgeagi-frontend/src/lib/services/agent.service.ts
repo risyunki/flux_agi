@@ -1,3 +1,5 @@
+import { config } from '../config';
+
 export interface Agent {
   id: string;
   name: string;
@@ -7,8 +9,8 @@ export interface Agent {
   capabilities: string[];
 }
 
-class AgentService {
-  private readonly baseUrl = 'http://localhost:8000';
+export class AgentService {
+  private readonly baseUrl = config.apiUrl;
 
   async getAgents(): Promise<Agent[]> {
     try {
@@ -17,10 +19,10 @@ class AgentService {
         throw new Error(`Failed to fetch agents: ${response.statusText}`);
       }
       const data = await response.json();
-      return data;
+      return Array.isArray(data.agents) ? data.agents : [];
     } catch (error) {
       console.error('Error fetching agents:', error);
-      throw new Error(error instanceof Error ? error.message : 'Failed to fetch agents');
+      throw error;
     }
   }
 
@@ -30,13 +32,12 @@ class AgentService {
       if (!response.ok) {
         throw new Error(`Failed to fetch agent status: ${response.statusText}`);
       }
-      const data = await response.json();
-      return data;
+      return response.json();
     } catch (error) {
       console.error('Error fetching agent status:', error);
-      throw new Error(error instanceof Error ? error.message : 'Failed to fetch agent status');
+      throw error;
     }
   }
 }
 
-export const agentService = new AgentService() 
+export const agentService = new AgentService();
