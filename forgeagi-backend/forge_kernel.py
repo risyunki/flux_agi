@@ -38,7 +38,7 @@ class WebSocketManager:
     """
     def __init__(self) -> None:
         self.active_connections: List[WebSocket] = []
-        self.last_ping: Dict[WebSocket, float] = {}
+        self.last_pong: Dict[WebSocket, float] = {}
         self.ping_interval = 30  # seconds
 
     async def connect(self, websocket: WebSocket) -> None:
@@ -47,7 +47,7 @@ class WebSocketManager:
         """
         await websocket.accept()
         self.active_connections.append(websocket)
-        self.last_ping[websocket] = datetime.now().timestamp()
+        self.last_pong[websocket] = datetime.now().timestamp()
         logger.info(
             f"WebSocket connected. Total active connections: {len(self.active_connections)}"
         )
@@ -58,7 +58,7 @@ class WebSocketManager:
         """
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-            self.last_ping.pop(websocket, None)
+            self.last_pong.pop(websocket, None)
             logger.info(
                 f"WebSocket disconnected. Remaining connections: {len(self.active_connections)}"
             )
@@ -76,8 +76,8 @@ class WebSocketManager:
         disconnected = []
         for connection in self.active_connections:
             try:
-                # Check if connection is still alive
-                if (datetime.now().timestamp() - self.last_ping.get(connection, 0)) > self.ping_interval * 2:
+                # Check if connection is still alive based on last pong
+                if (datetime.now().timestamp() - self.last_pong.get(connection, 0)) > self.ping_interval * 2:
                     logger.warning(f"Connection timeout detected, closing connection")
                     disconnected.append(connection)
                     continue
@@ -114,19 +114,12 @@ class WebSocketManager:
             "current_action": current_action,
         })
 
-    async def handle_ping(self, websocket: WebSocket) -> None:
+    async def handle_pong(self, websocket: WebSocket) -> None:
         """
-        Handle ping message from client and update last ping time.
+        Update last pong time when a pong frame is received.
         """
-        self.last_ping[websocket] = datetime.now().timestamp()
-        try:
-            await websocket.send_json({
-                "type": "pong",
-                "data": {"timestamp": datetime.now().isoformat()}
-            })
-        except Exception as e:
-            logger.error(f"Failed to send pong: {e}")
-            self.disconnect(websocket)
+        self.last_pong[websocket] = datetime.now().timestamp()
+        logger.debug("Received pong from client")
 
 # ------------------------------------------------------
 # FastAPI App Configuration
@@ -529,30 +522,40 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             try:
                 # Wait for messages from the client
-                data = await websocket.receive_json()
-                logger.debug(f"Received WebSocket message: {data}")
+                message = await websocket.receive()
                 
-                # Process the message based on its type
-                if isinstance(data, dict) and "type" in data:
-                    message_type = data["type"]
+                # Handle WebSocket protocol messages
+                if message["type"] == "websocket.pong":
+                    await ws_manager.handle_pong(websocket)
+                    continue
+                
+                # Handle application messages
+                if message["type"] == "websocket.receive":
+                    data = json.loads(message["text"])
+                    logger.debug(f"Received WebSocket message: {data}")
                     
-                    if message_type == "ping":
-                        await ws_manager.handle_ping(websocket)
-                    else:
-                        # Handle other message types
-                        await ws_manager.broadcast(message_type, data.get("data", {}))
+                    if isinstance(data, dict) and "type" in data:
+                        # Handle application-level messages
+                        await ws_manager.broadcast(data["type"], data.get("data", {}))
             
             except WebSocketDisconnect:
                 logger.info("WebSocket client disconnected normally")
                 ws_manager.disconnect(websocket)
                 break
             
+            except json.JSONDecodeError:
+                logger.error("Received invalid JSON message")
+                continue
+            
             except Exception as e:
                 logger.error(f"Error processing WebSocket message: {str(e)}")
-                await websocket.send_json({
-                    "type": "error",
-                    "data": {"message": "Internal server error"}
-                })
+                try:
+                    await websocket.send_json({
+                        "type": "error",
+                        "data": {"message": "Internal server error"}
+                    })
+                except:
+                    pass  # Ignore send errors on potentially closed socket
     
     except Exception as e:
         logger.error(f"WebSocket connection error: {str(e)}")
