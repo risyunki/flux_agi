@@ -29,7 +29,8 @@ export class WebSocketService {
   private reconnectTimeout: NodeJS.Timeout | null = null
   private isConnecting = false
   private heartbeatInterval: NodeJS.Timeout | null = null
-  private lastPongTime: number = 0
+  private lastPongTime: number = Date.now()
+  private hasReceivedFirstPong: boolean = false
 
   connect(): WebSocket | null {
     if (this.ws?.readyState === WebSocket.OPEN) {
@@ -73,7 +74,9 @@ export class WebSocketService {
       
       // Handle pong messages for heartbeat
       if (message.type === 'pong') {
+        console.log('[Heartbeat] Pong received at:', new Date())
         this.lastPongTime = Date.now()
+        this.hasReceivedFirstPong = true
         return
       }
 
@@ -111,6 +114,8 @@ export class WebSocketService {
 
   private startHeartbeat() {
     this.stopHeartbeat()
+    this.lastPongTime = Date.now()
+    this.hasReceivedFirstPong = false
     this.heartbeatInterval = setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) {
         // Send ping message
@@ -119,9 +124,10 @@ export class WebSocketService {
           data: { timestamp: new Date().toISOString() }
         }))
 
-        // Check if we received a pong within the last 10 seconds
-        if (Date.now() - this.lastPongTime > 10000) {
-          console.warn('No pong received, reconnecting...')
+        // Only check for pong timeout if we've received at least one pong
+        // and give more time (30 seconds instead of 10)
+        if (this.hasReceivedFirstPong && Date.now() - this.lastPongTime > 30000) {
+          console.warn('No pong received in 30s, reconnecting...')
           this.ws.close()
         }
       }
