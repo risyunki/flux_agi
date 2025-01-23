@@ -30,7 +30,12 @@ export default function TasksPage() {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch(`${config.apiUrl}/agents`)
+        const response = await fetch(`${config.apiUrl}/agents`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
         if (!response.ok) throw new Error('Failed to fetch agents')
         const data = await response.json()
         const agentsList = Array.isArray(data.agents) ? data.agents : []
@@ -49,7 +54,12 @@ export default function TasksPage() {
 
     const fetchTasks = async () => {
       try {
-        const response = await fetch(`${config.apiUrl}/tasks`)
+        const response = await fetch(`${config.apiUrl}/tasks`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
         if (!response.ok) throw new Error('Failed to fetch tasks')
         const data = await response.json()
         const tasksList = Array.isArray(data.tasks) ? data.tasks : []

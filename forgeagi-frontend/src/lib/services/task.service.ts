@@ -16,7 +16,12 @@ class TaskService {
 
   async getTasks(): Promise<Task[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/tasks`);
+      const response = await fetch(`${this.baseUrl}/tasks`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch tasks: ${response.statusText}`);
       }
@@ -32,6 +37,7 @@ class TaskService {
     try {
       const response = await fetch(`${this.baseUrl}/tasks`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

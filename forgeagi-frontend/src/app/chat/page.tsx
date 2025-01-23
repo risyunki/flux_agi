@@ -133,6 +133,7 @@ export default function ChatPage() {
     try {
       const response = await fetch(`${config.apiUrl}/tasks`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

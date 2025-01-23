@@ -14,7 +14,12 @@ export class AgentService {
 
   async getAgents(): Promise<Agent[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/agents`);
+      const response = await fetch(`${this.baseUrl}/agents`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch agents: ${response.statusText}`);
       }
@@ -28,7 +33,12 @@ export class AgentService {
 
   async getAgentStatus(id: string): Promise<Agent> {
     try {
-      const response = await fetch(`${this.baseUrl}/agents/${id}/status`);
+      const response = await fetch(`${this.baseUrl}/agents/${id}/status`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch agent status: ${response.statusText}`);
       }
