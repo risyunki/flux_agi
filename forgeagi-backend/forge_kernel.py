@@ -47,6 +47,7 @@ allowed_origins = [
 
 logger.info(f"Configuring CORS with allowed origins: {allowed_origins}")
 
+# Configure CORS middleware for HTTP requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
@@ -407,8 +408,14 @@ class ForgeKernel:
             Handles connection, message processing, and graceful disconnection.
             """
             try:
-                await self.ws_manager.connect(websocket)
-                logger.info("New WebSocket client connected")
+                # Handle CORS for WebSocket upgrade
+                origin = websocket.headers.get("origin")
+                if origin not in allowed_origins:
+                    await websocket.close(code=1008)  # Policy violation
+                    return
+
+                await websocket.accept()
+                logger.info(f"New WebSocket client connected from {origin}")
                 
                 # Send initial connection success message
                 await websocket.send_json({
@@ -423,8 +430,6 @@ class ForgeKernel:
                     try:
                         # Wait for messages from the client
                         data = await websocket.receive_json()
-                        
-                        # Log received message
                         logger.debug(f"Received WebSocket message: {data}")
                         
                         # Process the message based on its type
@@ -445,13 +450,6 @@ class ForgeKernel:
                         self.ws_manager.disconnect(websocket)
                         break
                     
-                    except json.JSONDecodeError:
-                        logger.warning("Received invalid JSON data")
-                        await websocket.send_json({
-                            "type": "error",
-                            "data": {"message": "Invalid JSON format"}
-                        })
-                    
                     except Exception as e:
                         logger.error(f"Error processing WebSocket message: {str(e)}")
                         await websocket.send_json({
@@ -462,9 +460,8 @@ class ForgeKernel:
             except Exception as e:
                 logger.error(f"WebSocket connection error: {str(e)}")
                 try:
-                    # Check if the connection is still open before trying to close it
-                    if not websocket.client_state.DISCONNECTED:
-                        await websocket.close(code=1001)
+                    if not websocket.client_state == WebSocketState.DISCONNECTED:
+                        await websocket.close(code=1011)  # Internal error
                 except Exception as close_error:
                     logger.error(f"Error closing WebSocket: {str(close_error)}")
                 finally:
