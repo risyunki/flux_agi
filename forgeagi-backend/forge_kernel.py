@@ -34,11 +34,16 @@ logger = logging.getLogger("forge.kernel")
 # ------------------------------------------------------
 app = FastAPI()
 
-# Configure CORS
-allowed_origins = os.getenv(
-    "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:3001,http://localhost:3002,https://forgelabs-six.vercel.app,https://forgeai.xyz,https://www.forgeai.xyz"
-).split(",")
+# Configure CORS with all production domains
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001", 
+    "http://localhost:3002",
+    "https://forgelabs-six.vercel.app",
+    "https://forgeai.xyz",
+    "https://www.forgeai.xyz",
+    "https://forgelabs-production.up.railway.app"
+]
 
 logger.info(f"Configuring CORS with allowed origins: {allowed_origins}")
 
@@ -50,14 +55,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add WebSocket CORS middleware
+# Improved WebSocket CORS middleware
 @app.middleware("http")
 async def add_cors_headers(request: Request, call_next):
     response = await call_next(request)
+    
+    # Handle WebSocket upgrade requests
     if request.headers.get("upgrade", "").lower() == "websocket":
-        for origin in allowed_origins:
-            if origin == request.headers.get("origin"):
-                response.headers["Access-Control-Allow-Origin"] = origin
+        origin = request.headers.get("origin")
+        if origin in allowed_origins:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+    
     return response
 
 @app.on_event("startup")
