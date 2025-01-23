@@ -117,14 +117,23 @@ allowed_origins = [
 
 logger.info(f"Configuring CORS with allowed origins: {allowed_origins}")
 
-# Configure CORS middleware for HTTP requests
+# Configure CORS middleware for HTTP requests with explicit headers
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-    expose_headers=["*"]
+    allow_headers=[
+        "Content-Type",
+        "Authorization",
+        "Accept",
+        "Origin",
+        "X-Requested-With",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers"
+    ],
+    expose_headers=["*"],
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
 # WebSocket Manager instance
@@ -412,27 +421,42 @@ class ForgeKernel:
 kernel = ForgeKernel()
 
 # ------------------------------------------------------
-# CORS Middleware for WebSocket
+# CORS Middleware for WebSocket and Additional Headers
 # ------------------------------------------------------
 @app.middleware("http")
 async def cors_middleware(request: Request, call_next):
+    # Handle preflight requests
+    if request.method == "OPTIONS":
+        origin = request.headers.get("origin")
+        if origin in allowed_origins:
+            return Response(
+                status_code=200,
+                headers={
+                    "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, Origin, X-Requested-With",
+                    "Access-Control-Allow-Credentials": "true",
+                    "Access-Control-Max-Age": "3600",
+                }
+            )
+        return Response(status_code=400)
+
+    # Handle WebSocket upgrade requests
     if request.headers.get("upgrade", "").lower() == "websocket":
         origin = request.headers.get("origin")
         if origin in allowed_origins:
-            # Return response with CORS headers for WebSocket
             return Response(
                 status_code=101,  # Switching Protocols
                 headers={
                     "Access-Control-Allow-Origin": origin,
                     "Access-Control-Allow-Credentials": "true",
-                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "*",
-                    "Access-Control-Expose-Headers": "*",
                     "Connection": "Upgrade",
                     "Upgrade": "websocket",
+                    "Sec-WebSocket-Accept": request.headers.get("sec-websocket-key", ""),
                 }
             )
     
+    # Handle regular requests
     response = await call_next(request)
     
     origin = request.headers.get("origin")
@@ -440,8 +464,8 @@ async def cors_middleware(request: Request, call_next):
         response.headers["Access-Control-Allow-Origin"] = origin
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        response.headers["Access-Control-Expose-Headers"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, Accept, Origin, X-Requested-With"
+        response.headers["Access-Control-Max-Age"] = "3600"
     
     return response
 
