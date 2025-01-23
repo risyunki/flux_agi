@@ -38,8 +38,6 @@ class WebSocketManager:
     """
     def __init__(self) -> None:
         self.active_connections: List[WebSocket] = []
-        self.last_pong: Dict[WebSocket, float] = {}
-        self.ping_interval = 30  # seconds
 
     async def connect(self, websocket: WebSocket) -> None:
         """
@@ -47,10 +45,7 @@ class WebSocketManager:
         """
         await websocket.accept()
         self.active_connections.append(websocket)
-        self.last_pong[websocket] = datetime.now().timestamp()
-        logger.info(
-            f"WebSocket connected. Total active connections: {len(self.active_connections)}"
-        )
+        logger.info(f"WebSocket connected. Total active connections: {len(self.active_connections)}")
 
     def disconnect(self, websocket: WebSocket) -> None:
         """
@@ -58,10 +53,7 @@ class WebSocketManager:
         """
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-            self.last_pong.pop(websocket, None)
-            logger.info(
-                f"WebSocket disconnected. Remaining connections: {len(self.active_connections)}"
-            )
+            logger.info(f"WebSocket disconnected. Remaining connections: {len(self.active_connections)}")
 
     async def broadcast(self, event_type: str, data: Any) -> None:
         """
@@ -76,15 +68,7 @@ class WebSocketManager:
         disconnected = []
         for connection in self.active_connections:
             try:
-                # Check if connection is still alive based on last pong
-                if (datetime.now().timestamp() - self.last_pong.get(connection, 0)) > self.ping_interval * 2:
-                    logger.warning(f"Connection timeout detected, closing connection")
-                    disconnected.append(connection)
-                    continue
-
                 await connection.send_json(message)
-            except WebSocketDisconnect:
-                disconnected.append(connection)
             except Exception as e:
                 logger.error(f"Failed to send message to client: {e}")
                 disconnected.append(connection)
@@ -94,9 +78,6 @@ class WebSocketManager:
             self.disconnect(connection)
 
     async def broadcast_agent_activity(self, agent_id: str, activity: str, details: Dict[str, Any] = None) -> None:
-        """
-        Broadcast agent activity updates to all connected clients.
-        """
         await self.broadcast("agent_activity", {
             "agent_id": agent_id,
             "activity": activity,
@@ -104,22 +85,12 @@ class WebSocketManager:
         })
 
     async def broadcast_task_progress(self, task_id: str, progress: float, status: str, current_action: str = None) -> None:
-        """
-        Broadcast task progress updates to all connected clients.
-        """
         await self.broadcast("task_progress", {
             "task_id": task_id,
             "progress": progress,
             "status": status,
             "current_action": current_action,
         })
-
-    async def handle_pong(self, websocket: WebSocket) -> None:
-        """
-        Update last pong time when a pong frame is received.
-        """
-        self.last_pong[websocket] = datetime.now().timestamp()
-        logger.debug("Received pong from client")
 
 # ------------------------------------------------------
 # FastAPI App Configuration
@@ -497,14 +468,13 @@ async def cors_middleware(request: Request, call_next):
 async def websocket_endpoint(websocket: WebSocket):
     """
     WebSocket endpoint for real-time communication with clients.
-    Handles connection, message processing, and graceful disconnection.
     """
     try:
         # Handle CORS for WebSocket upgrade
         origin = websocket.headers.get("origin")
         if origin not in allowed_origins:
             logger.warning(f"Rejected WebSocket connection from unauthorized origin: {origin}")
-            await websocket.close(code=1008)  # Policy violation
+            await websocket.close(code=1008)
             return
 
         await ws_manager.connect(websocket)
@@ -522,50 +492,24 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             try:
                 # Wait for messages from the client
-                message = await websocket.receive()
-                
-                # Handle WebSocket protocol messages
-                if message["type"] == "websocket.pong":
-                    await ws_manager.handle_pong(websocket)
-                    continue
+                data = await websocket.receive_json()
+                logger.debug(f"Received WebSocket message: {data}")
                 
                 # Handle application messages
-                if message["type"] == "websocket.receive":
-                    data = json.loads(message["text"])
-                    logger.debug(f"Received WebSocket message: {data}")
-                    
-                    if isinstance(data, dict) and "type" in data:
-                        # Handle application-level messages
-                        await ws_manager.broadcast(data["type"], data.get("data", {}))
+                if isinstance(data, dict) and "type" in data:
+                    await ws_manager.broadcast(data["type"], data.get("data", {}))
             
             except WebSocketDisconnect:
-                logger.info("WebSocket client disconnected normally")
-                ws_manager.disconnect(websocket)
                 break
-            
-            except json.JSONDecodeError:
-                logger.error("Received invalid JSON message")
-                continue
-            
             except Exception as e:
                 logger.error(f"Error processing WebSocket message: {str(e)}")
-                try:
-                    await websocket.send_json({
-                        "type": "error",
-                        "data": {"message": "Internal server error"}
-                    })
-                except:
-                    pass  # Ignore send errors on potentially closed socket
+                break
     
     except Exception as e:
         logger.error(f"WebSocket connection error: {str(e)}")
-        try:
-            if not websocket.client_state == WebSocketState.DISCONNECTED:
-                await websocket.close(code=1011)  # Internal error
-        except Exception as close_error:
-            logger.error(f"Error closing WebSocket: {str(close_error)}")
-        finally:
-            ws_manager.disconnect(websocket)
+    
+    finally:
+        ws_manager.disconnect(websocket)
 
 if __name__ == "__main__":
     # Start the server using the PORT from environment variable
