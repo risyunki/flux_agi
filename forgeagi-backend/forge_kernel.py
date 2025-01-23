@@ -468,6 +468,7 @@ async def cors_middleware(request: Request, call_next):
 async def websocket_endpoint(websocket: WebSocket):
     """
     WebSocket endpoint for real-time communication with clients.
+    Handles connection, message processing, and graceful disconnection.
     """
     try:
         # Handle CORS for WebSocket upgrade
@@ -495,15 +496,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 data = await websocket.receive_json()
                 logger.debug(f"Received WebSocket message: {data}")
                 
-                # Handle ping messages immediately
-                if isinstance(data, dict) and data.get("type") == "ping":
-                    await websocket.send_json({
-                        "type": "pong",
-                        "data": {"timestamp": datetime.now().isoformat()}
-                    })
-                    continue
-                
-                # Handle other application messages
+                # Handle application messages
                 if isinstance(data, dict) and "type" in data:
                     await ws_manager.broadcast(data["type"], data.get("data", {}))
             
