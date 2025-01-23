@@ -57,36 +57,8 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
-# Improved WebSocket CORS middleware
-@app.middleware("http")
-async def add_cors_headers(request: Request, call_next):
-    # Special handling for WebSocket upgrade requests
-    if request.headers.get("upgrade", "").lower() == "websocket":
-        origin = request.headers.get("origin")
-        if origin in allowed_origins:
-            # Return response with CORS headers for WebSocket
-            return Response(
-                status_code=200,
-                headers={
-                    "Access-Control-Allow-Origin": origin,
-                    "Access-Control-Allow-Credentials": "true",
-                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "*",
-                    "Access-Control-Expose-Headers": "*",
-                }
-            )
-    
-    response = await call_next(request)
-    
-    origin = request.headers.get("origin")
-    if origin in allowed_origins:
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        response.headers["Access-Control-Expose-Headers"] = "*"
-    
-    return response
+# WebSocket Manager instance
+ws_manager = WebSocketManager()
 
 @app.on_event("startup")
 async def startup_event():
@@ -430,7 +402,7 @@ class ForgeKernel:
                     await websocket.close(code=1008)  # Policy violation
                     return
 
-                await websocket.accept()
+                await self.ws_manager.connect(websocket)
                 logger.info(f"New WebSocket client connected from {origin}")
                 
                 # Send initial connection success message
@@ -571,6 +543,39 @@ class ForgeKernel:
 
 # Create the kernel instance
 kernel = ForgeKernel()
+
+# Improved WebSocket CORS middleware
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    # Special handling for WebSocket upgrade requests
+    if request.headers.get("upgrade", "").lower() == "websocket":
+        origin = request.headers.get("origin")
+        if origin in allowed_origins:
+            # Return response with CORS headers for WebSocket
+            return Response(
+                status_code=101,  # Switching Protocols
+                headers={
+                    "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Credentials": "true",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Expose-Headers": "*",
+                    "Connection": "Upgrade",
+                    "Upgrade": "websocket",
+                }
+            )
+    
+    response = await call_next(request)
+    
+    origin = request.headers.get("origin")
+    if origin in allowed_origins:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        response.headers["Access-Control-Expose-Headers"] = "*"
+    
+    return response
 
 if __name__ == "__main__":
     # Start the server using the PORT from environment variable
