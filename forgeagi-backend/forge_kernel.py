@@ -8,7 +8,7 @@ import logging
 import os
 import uuid
 
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketState
 import uvicorn
@@ -60,6 +60,22 @@ app.add_middleware(
 # Improved WebSocket CORS middleware
 @app.middleware("http")
 async def add_cors_headers(request: Request, call_next):
+    # Special handling for WebSocket upgrade requests
+    if request.headers.get("upgrade", "").lower() == "websocket":
+        origin = request.headers.get("origin")
+        if origin in allowed_origins:
+            # Return response with CORS headers for WebSocket
+            return Response(
+                status_code=200,
+                headers={
+                    "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Credentials": "true",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Expose-Headers": "*",
+                }
+            )
+    
     response = await call_next(request)
     
     origin = request.headers.get("origin")
