@@ -28,9 +28,6 @@ export class WebSocketService {
   private maxReconnectAttempts = 10
   private reconnectTimeout: NodeJS.Timeout | null = null
   private isConnecting = false
-  private heartbeatInterval: NodeJS.Timeout | null = null
-  private lastPongTime: number = Date.now()
-  private hasReceivedFirstPong: boolean = false
 
   connect(): WebSocket | null {
     if (this.ws?.readyState === WebSocket.OPEN) {
@@ -67,17 +64,6 @@ export class WebSocketService {
       // Handle connection status messages
       if (message.type === 'connection_status') {
         console.log('Connection status:', message.data.status)
-        if (message.data.status === 'connected') {
-          this.startHeartbeat()
-        }
-      }
-      
-      // Handle pong messages for heartbeat
-      if (message.type === 'pong') {
-        console.log('[Heartbeat] Pong received at:', new Date())
-        this.lastPongTime = Date.now()
-        this.hasReceivedFirstPong = true
-        return
       }
 
       this.messageHandlers.forEach(handler => {
@@ -94,14 +80,12 @@ export class WebSocketService {
 
   private onerror() {
     console.error('WebSocket error')
-    this.stopHeartbeat()
     this.attemptReconnect()
   }
 
   private onclose() {
     console.log('WebSocket closed')
     this.isConnecting = false
-    this.stopHeartbeat()
     this.attemptReconnect()
   }
 
@@ -109,36 +93,6 @@ export class WebSocketService {
     console.log('WebSocket connected')
     this.isConnecting = false
     this.reconnectAttempts = 0
-    this.startHeartbeat()
-  }
-
-  private startHeartbeat() {
-    this.stopHeartbeat()
-    this.lastPongTime = Date.now()
-    this.hasReceivedFirstPong = false
-    this.heartbeatInterval = setInterval(() => {
-      if (this.ws?.readyState === WebSocket.OPEN) {
-        // Send ping message
-        this.ws.send(JSON.stringify({
-          type: 'ping',
-          data: { timestamp: new Date().toISOString() }
-        }))
-
-        // Only check for pong timeout if we've received at least one pong
-        // and give more time (30 seconds instead of 10)
-        if (this.hasReceivedFirstPong && Date.now() - this.lastPongTime > 30000) {
-          console.warn('No pong received in 30s, reconnecting...')
-          this.ws.close()
-        }
-      }
-    }, 5000) // Send ping every 5 seconds
-  }
-
-  private stopHeartbeat() {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval)
-      this.heartbeatInterval = null
-    }
   }
 
   private attemptReconnect() {
@@ -162,7 +116,6 @@ export class WebSocketService {
   }
 
   disconnect(): void {
-    this.stopHeartbeat()
     if (this.ws) {
       this.ws.close()
       this.ws = null
