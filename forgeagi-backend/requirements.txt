@@ -1,0 +1,17 @@
+# Web Framework
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+websockets>=12.0
+
+# LangChain and OpenAI
+langchain-core>=0.1.4
+langchain-openai>=0.0.5
+openai>=1.6.1
+
+# Environment and Utils
+python-dotenv>=1.0.0
+pydantic>=2.5.2
+
+# CORS
+starlette>=0.27.0

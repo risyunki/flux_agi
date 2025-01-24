@@ -1,0 +1,73 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing
+.pytest_cache/
+coverage
+.coverage
+htmlcov/
+
+# Production
+build
+dist/
+*.egg-info/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Next.js
+.next/
+out/
+
+# Database
+*.sqlite
+*.db
+
+# Misc
+*.log

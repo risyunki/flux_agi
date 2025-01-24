@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  forgeai:
+    build: .
+    volumes:
+      - .:/app/forgeai-backend
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - PORT=${PORT}
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
