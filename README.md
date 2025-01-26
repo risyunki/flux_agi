@@ -31,15 +31,15 @@ FluxAGI revolutionizes AI interaction by creating a seamless orchestration platf
 ## ✨ Features
 
 ### 🤖 Multi-Agent System
-- **Specialized Agents**
-  - Bragi: Natural language processing and task execution
+- **Specialized Agents by Flux Labs**
+  - Bragi: Advanced natural language processing and task execution
   - Odin: Strategic oversight and resource coordination
   - Thor: System architecture and agent maintenance
   - Engineer: Technical implementation and code management
   - Researcher: Data analysis and methodology research
 
 - **Advanced Capabilities**
-  - Cross-agent communication protocols
+  - Proprietary cross-agent communication protocols
   - Dynamic capability discovery
   - Automated task delegation
   - Learning from past interactions
@@ -186,7 +186,7 @@ NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
 ```env
 DATABASE_URL=postgresql://user:pass@localhost:5432/flux
 REDIS_URL=redis://localhost:6379
-OPENAI_API_KEY=your_key_here
+FLUX_API_KEY=your_key_here
 JWT_SECRET=your_secret_here
 ENVIRONMENT=development
 LOG_LEVEL=debug
@@ -194,22 +194,15 @@ LOG_LEVEL=debug
 
 ## 🤖 AI Agents in Detail
 
-### Bragi - The AI Assistant
+### Bragi - The Flux Labs AI Assistant
 - **Core Responsibilities**
-  - Natural language understanding
-  - Task decomposition
+  - Advanced natural language understanding
+  - Intelligent task decomposition
   - Information synthesis
   - Response generation
   - Context management
 
-- **Key Features**
-  - Multi-turn conversations
-  - Context preservation
-  - Entity recognition
-  - Sentiment analysis
-  - Language generation
-
-### Odin - The Coordinator
+### Odin - The Flux Labs Coordinator
 - **Core Responsibilities**
   - Task orchestration
   - Resource allocation
@@ -217,27 +210,13 @@ LOG_LEVEL=debug
   - Performance monitoring
   - System optimization
 
-- **Key Features**
-  - Dynamic scheduling
-  - Load balancing
-  - Resource optimization
-  - Performance analytics
-  - System monitoring
-
-### Thor - The Architect
+### Thor - The Flux Labs Architect
 - **Core Responsibilities**
   - System design
   - Agent creation
   - Performance testing
   - System maintenance
   - Capability enhancement
-
-- **Key Features**
-  - Architecture planning
-  - System scaling
-  - Performance tuning
-  - Reliability testing
-  - Security hardening
 
 ## 📦 API Documentation
 
@@ -376,9 +355,9 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🤝 Acknowledgments
 
-- OpenAI for GPT models
+- Flux Labs for developing the advanced AI agents
 - Vercel for hosting
 - Railway for infrastructure
 - Contributors and maintainers
