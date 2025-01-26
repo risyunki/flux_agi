@@ -92,7 +92,7 @@ Flux AI is built on a modular architecture with these key components:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/forgeagi.git
+git clone (https://github.com/risyunki/flux_agi)
 cd forgeagi
 ```
 

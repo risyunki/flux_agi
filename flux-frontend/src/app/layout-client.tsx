@@ -68,7 +68,7 @@ export function LayoutContent({ children }: LayoutContentProps) {
     },
     {
       label: "GitHub",
-      href: "https://github.com/risyunki/fluxai",
+      href: "https://github.com/risyunki/flux_agi",
       icon: <Github className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
     },
   ]
