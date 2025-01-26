@@ -8,13 +8,13 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy requirements first for better caching
-COPY forgeagi-backend/requirements.txt .
+COPY flux-backend/requirements.txt .
 
 # Install dependencies in virtual environment
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application
-COPY forgeagi-backend .
+COPY flux-backend .
 
 # Create startup script with detailed logging and error handling
 RUN echo '#!/bin/bash\n\
@@ -31,15 +31,15 @@ echo "Environment variables (excluding secrets):"\n\
 env | grep -vE "KEY|TOKEN|SECRET|PASSWORD"\n\
 \n\
 echo "=== Checking Required Files ==="\n\
-if [ ! -f "forge_kernel.py" ]; then\n\
-    echo "ERROR: forge_kernel.py not found!"\n\
+if [ ! -f "flux_kernel.py" ]; then\n\
+    echo "ERROR: flux_kernel.py not found!"\n\
     exit 1\n\
 fi\n\
 \n\
 echo "=== Starting Application ==="\n\
 PORT="${PORT:-8000}"\n\
 echo "Using port: $PORT"\n\
-exec uvicorn forge_kernel:app --host 0.0.0.0 --port $PORT --log-level debug\n'\
+exec uvicorn flux_kernel:app --host 0.0.0.0 --port $PORT --log-level debug\n'\
 > start.sh && chmod +x start.sh
 
 # Set environment variables

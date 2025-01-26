@@ -1,12 +1,12 @@
-# ForgeAGI
+# FluxAGI
 
-A modern AI orchestration platform that enables seamless interaction with multiple AI agents through a real-time web interface.
+FluxAGI is a cutting-edge AI orchestration platform that leverages modern web technologies to create a seamless interaction between users and multiple AI agents. The system employs a sophisticated task management system and real-time communication to enable collaborative problem-solving.
 
 🔗 [GitHub Repository](https://github.com/risyunki/forgeagi)
 
 ## Overview
 
-ForgeAGI is a cutting-edge AI orchestration platform that leverages modern web technologies to create a seamless interaction between users and multiple AI agents. The system employs a sophisticated task management system with real-time updates and elegant state preservation.
+FluxAGI is a cutting-edge AI orchestration platform that leverages modern web technologies to create a seamless interaction between users and multiple AI agents. The system employs a sophisticated task management system with real-time updates and elegant state preservation.
 
 ### Key Highlights
 - 🚀 Modern tech stack with Next.js 14 and FastAPI
@@ -55,9 +55,9 @@ interface Agent {
 
 #### Core Architecture
 
-1. **Forge Kernel**
+1. **Flux Kernel**
 ```python
-class ForgeKernel:
+class FluxKernel:
     def __init__(self):
         self.agents = {}
         self.tasks = {}
