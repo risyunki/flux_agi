@@ -29,13 +29,13 @@ export function BentoCard({
   const getGradient = () => {
     switch (type) {
       case 'coordinator':
-        return "bg-gradient-to-br from-stone-500/20 to-amber-500/20 hover:from-stone-500/30 hover:to-amber-500/30"
+        return "bg-gradient-to-br from-sky-500/10 to-blue-500/10 hover:from-sky-500/20 hover:to-blue-500/20"
       case 'architect':
-        return "bg-gradient-to-br from-amber-500/20 to-stone-500/20 hover:from-amber-500/30 hover:to-stone-500/30"
+        return "bg-gradient-to-br from-blue-500/10 to-indigo-500/10 hover:from-blue-500/20 hover:to-indigo-500/20"
       case 'engineer':
-        return "bg-gradient-to-br from-stone-400/20 to-amber-400/20 hover:from-stone-400/30 hover:to-amber-400/30"
+        return "bg-gradient-to-br from-indigo-400/10 to-sky-400/10 hover:from-indigo-400/20 hover:to-sky-400/20"
       case 'researcher':
-        return "bg-gradient-to-br from-amber-400/20 to-stone-400/20 hover:from-amber-400/30 hover:to-stone-400/30"
+        return "bg-gradient-to-br from-sky-400/10 to-blue-400/10 hover:from-sky-400/20 hover:to-blue-400/20"
       default:
         return "bg-stone-50/40 dark:bg-white/5 hover:bg-stone-100/60 dark:hover:bg-white/10"
     }
@@ -45,15 +45,15 @@ export function BentoCard({
     <div
       onClick={onClick}
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-stone-200/20 dark:border-white/10 p-6 transition-all hover:shadow-xl hover:shadow-stone-200/10",
+        "group relative overflow-hidden rounded-xl border border-white/20 dark:border-white/10 p-6 transition-all hover:shadow-xl hover:shadow-stone-200/10",
         getGradient(),
-        selected ? 'ring-2 ring-stone-400 dark:ring-stone-600' : ''
+        selected ? 'ring-2 ring-primary dark:ring-primary' : ''
       )}
     >
       <div className="relative z-10 space-y-4">
         <div className="flex items-center justify-between">
-          <div className="p-2 rounded-xl bg-stone-100/40 dark:bg-white/5 border border-stone-200/20 dark:border-white/10">
-            <Icon className="w-6 h-6 text-stone-700 dark:text-stone-300" />
+          <div className="p-2 rounded-xl bg-white/40 dark:bg-white/5 border border-white/20 dark:border-white/10">
+            <Icon className="w-6 h-6 text-primary dark:text-primary" />
           </div>
         </div>
         <div>

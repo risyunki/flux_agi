@@ -57,7 +57,11 @@ export class TaskService {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' }
     });
-    if (!response.ok) throw new Error('Failed to archive task');
+    
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({ detail: 'Failed to archive task' }));
+      throw new Error(data.detail || 'Failed to archive task');
+    }
   }
 
   async unarchiveTask(taskId: string): Promise<void> {
@@ -66,7 +70,11 @@ export class TaskService {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' }
     });
-    if (!response.ok) throw new Error('Failed to unarchive task');
+    
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({ detail: 'Failed to unarchive task' }));
+      throw new Error(data.detail || 'Failed to unarchive task');
+    }
   }
 
   startPolling(callback: (tasks: Task[]) => void, archived: boolean = false) {

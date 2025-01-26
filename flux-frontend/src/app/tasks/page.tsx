@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { config } from '@/lib/config'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Window } from "@/components/ui/window"
+import { WebSocketService, WebSocketMessage } from '@/lib/services/websocket.service'
 
 type AgentType = 'assistant' | 'coordinator' | 'architect'
 
@@ -21,6 +22,7 @@ const agentIcons = {
 } as const
 
 const taskService = new TaskService()
+const websocketService = new WebSocketService()
 
 export default function TasksPage() {
   const [agents, setAgents] = useState<Agent[]>([])
@@ -88,29 +90,52 @@ export default function TasksPage() {
 
     // Start polling for updates
     taskService.startPolling((updatedTasks) => {
-      setActiveTasks(Array.isArray(updatedTasks) ? updatedTasks : [])
-      setLoading(false)
+      if (Array.isArray(updatedTasks)) {
+        setActiveTasks(updatedTasks.filter(task => !task.archived))
+        setLoading(false)
+      }
     })
 
-    // Also fetch archived tasks once
-    taskService.getTasks(true).then(setArchivedTasks)
+    // Set up WebSocket for real-time updates
+    const handleWebSocketMessage = (data: WebSocketMessage) => {
+      if (data.type === 'task_update' && typeof data.data === 'object' && data.data) {
+        const updatedTask = data.data as Task
+        setActiveTasks(prev => {
+          const index = prev.findIndex(task => task.id === updatedTask.id)
+          if (index === -1) {
+            return [...prev, updatedTask]
+          }
+          const newTasks = [...prev]
+          newTasks[index] = updatedTask
+          return newTasks
+        })
+        if (updatedTask.status === 'completed') {
+          toast.success(`Task completed: ${updatedTask.description}`)
+        }
+      }
+    }
+
+    websocketService.connect()
+    websocketService.addMessageHandler(handleWebSocketMessage)
 
     // Cleanup
     return () => {
       taskService.stopPolling()
+      websocketService.removeMessageHandler(handleWebSocketMessage)
+      websocketService.disconnect()
     }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() || !selectedAgent) return
 
     try {
       setIsSubmitting(true)
-      await taskService.createTask(input, selectedAgent?.id || 'assistant')
+      const task = await taskService.createTask(input, selectedAgent.id)
       setInput('')
-      const updatedTasks = await taskService.getTasks()
-      setActiveTasks(Array.isArray(updatedTasks) ? updatedTasks : [])
+      // Immediately add the new task to the active tasks
+      setActiveTasks(prev => [...prev, task])
       toast.success('Task created successfully')
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to create task'
@@ -122,33 +147,55 @@ export default function TasksPage() {
 
   const handleArchive = async (taskId: string) => {
     try {
+      // First update the UI optimistically
+      const task = activeTasks.find(t => t.id === taskId)
+      if (!task) {
+        toast.error('Task not found')
+        return
+      }
+
+      setActiveTasks(prev => prev.filter(t => t.id !== taskId))
+      setArchivedTasks(prev => [...prev, { ...task, archived: true }])
+
+      // Then try to archive on the server
       await taskService.archiveTask(taskId)
       toast.success('Task archived')
-      
-      // Update both lists
-      const task = activeTasks.find(t => t.id === taskId)
+    } catch (error) {
+      // If the server request fails, revert the UI changes
+      const task = archivedTasks.find(t => t.id === taskId)
       if (task) {
-        setArchivedTasks(prev => [...prev, { ...task, archived: true }])
-        setActiveTasks(prev => prev.filter(t => t.id !== taskId))
+        setArchivedTasks(prev => prev.filter(t => t.id !== taskId))
+        setActiveTasks(prev => [...prev, { ...task, archived: false }])
       }
-    } catch {
-      toast.error('Failed to archive task')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to archive task'
+      toast.error(errorMessage)
     }
   }
 
   const handleUnarchive = async (taskId: string) => {
     try {
+      // First update the UI optimistically
+      const task = archivedTasks.find(t => t.id === taskId)
+      if (!task) {
+        toast.error('Task not found')
+        return
+      }
+
+      setArchivedTasks(prev => prev.filter(t => t.id !== taskId))
+      setActiveTasks(prev => [...prev, { ...task, archived: false }])
+
+      // Then try to unarchive on the server
       await taskService.unarchiveTask(taskId)
       toast.success('Task unarchived')
-      
-      // Update both lists
-      const task = archivedTasks.find(t => t.id === taskId)
+    } catch (error) {
+      // If the server request fails, revert the UI changes
+      const task = activeTasks.find(t => t.id === taskId)
       if (task) {
-        setActiveTasks(prev => [...prev, { ...task, archived: false }])
-        setArchivedTasks(prev => prev.filter(t => t.id !== taskId))
+        setActiveTasks(prev => prev.filter(t => t.id !== taskId))
+        setArchivedTasks(prev => [...prev, { ...task, archived: true }])
       }
-    } catch {
-      toast.error('Failed to unarchive task')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to unarchive task'
+      toast.error(errorMessage)
     }
   }
 

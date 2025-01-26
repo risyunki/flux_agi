@@ -213,12 +213,12 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
           onClick={() => setSelectedAgent(null)}
         >
           <Window
             thickness="thick"
-            className="relative max-w-lg w-full p-6"
+            className="relative max-w-lg w-full p-6 bg-white/90 dark:bg-stone-900/90"
             onClick={e => e.stopPropagation()}
           >
             <div className="space-y-4">

@@ -5,6 +5,7 @@ import Link, { LinkProps } from "next/link";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface Links {
   label: string;
@@ -166,11 +167,17 @@ export const SidebarLink = ({
   props?: LinkProps;
 }) => {
   const { open, animate } = useSidebar();
+  const pathname = usePathname();
+  const isActive = pathname === link.href;
+
   return (
     <Link
       href={link.href}
       className={cn(
-        "flex items-center justify-start gap-2 group/sidebar py-2 hover:text-stone-900 dark:hover:text-stone-100",
+        "flex items-center justify-start gap-2 group/sidebar py-2",
+        isActive 
+          ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary" 
+          : "hover:text-stone-900 dark:hover:text-stone-100",
         className
       )}
       {...props}
