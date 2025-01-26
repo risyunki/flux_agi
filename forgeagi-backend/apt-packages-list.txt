@@ -1,0 +1,7 @@
+wget
+curl
+git
+chromium-driver
+ca-certificates
+cmake
+libclang-dev

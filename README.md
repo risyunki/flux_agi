@@ -594,4 +594,4 @@ npm run dev
 cd ../forgeagi-backend
 pip install -r requirements.txt
 uvicorn forge_kernel:app --reload
-``` 
+```

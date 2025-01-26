@@ -24,7 +24,10 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+<<<<<<< HEAD
 .env.*
+=======
+>>>>>>> e17ca8b00cc0a2747dac2e8a4bcf5ae840f9f5fc
 
 # Python
 __pycache__/
