@@ -1,4 +1,4 @@
-# VoraAI
+# VoraAGI
 
 <div align="center">
   <img src="flux-frontend/public/logo.png" alt="VoraAI Logo" width="200"/>
