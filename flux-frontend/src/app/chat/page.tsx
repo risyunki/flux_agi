@@ -29,12 +29,12 @@ const agentIcons = {
 const getInitialMessage = (agent: Agent) => {
   switch (agent.type as AgentType) {
     case 'coordinator':
-      return "Greetings, I am Odin, the wise overseer of all operations. I coordinate our agents and ensure optimal resource allocation for your tasks. How may I assist you today?"
+      return "Greetings, I am Indra, the Sky God and celestial overseer of all operations. I coordinate our agents and ensure optimal resource allocation for your tasks. How may I assist you today?"
     case 'architect':
-      return "Hail! I am Thor, the master builder of this realm. I forge and maintain our agents, ensuring they are equipped with the right tools. What shall we build together?"
+      return "Hail! I am Thoth, the Knowledge Keeper and master of wisdom. I forge and maintain our agents, ensuring they are equipped with the right tools. What shall we build together?"
     case 'assistant':
     default:
-      return "Hi! I'm Bragi, your AI assistant. I can help you with various tasks, from answering questions to solving complex problems. What can I help you with?"
+      return "Hi! I'm Gaia, your Earth Mother AI assistant. I can help you with various tasks, channeling the wisdom of nature to solve problems and maintain harmony. What can I help you with?"
   }
 }
 

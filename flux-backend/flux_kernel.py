@@ -102,8 +102,8 @@ allowed_origins = [
     "http://localhost:3000",
     "http://localhost:3001", 
     "http://localhost:3002",
-    "https://fluxagi.xyz",
-    "https://www.fluxagi.xyz",
+    "https://voraagi.xyz",
+    "https://www.voraagi.xyz",
     "https://forgelabs-production.up.railway.app"
 ]
 

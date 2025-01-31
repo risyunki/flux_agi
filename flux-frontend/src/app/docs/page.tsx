@@ -4,11 +4,11 @@ import { Card } from "@/components/ui/card"
 
 export default function DocsPage() {
   return (
-    <div className="max-w-6xl mx-auto p-8 space-y-8">
+    <div className="max-w-7xl mx-auto space-y-8">
       <div>
-        <h1 className="text-4xl font-bold mb-8">Flux Documentation</h1>
-        <p className="text-lg mb-8">
-          Welcome to Flux&apos;s documentation. This guide will help you understand how to interact with our AI agents and make the most of their capabilities.
+        <h1 className="text-4xl font-bold mb-8">Vora Documentation</h1>
+        <p className="text-lg text-stone-600 dark:text-stone-400 mb-8">
+          Welcome to Vora&apos;s documentation. This guide will help you understand how to interact with our AI agents and make the most of their capabilities.
         </p>
       </div>
 
@@ -17,8 +17,8 @@ export default function DocsPage() {
           <h2 className="text-2xl font-semibold mb-6">System Architecture</h2>
           <div className="prose dark:prose-invert max-w-none">
             <p>
-              Flux represents a significant step towards Artificial General Intelligence (AGI) through its unique multi-agent architecture. 
-              Unlike traditional AI systems that rely on a single large language model, Flux implements a distributed cognitive architecture 
+              Vora represents a significant step towards Artificial General Intelligence (AGI) through its unique multi-agent architecture. 
+              Unlike traditional AI systems that rely on a single large language model, Vora implements a distributed cognitive architecture 
               that mirrors the modular and hierarchical nature of biological intelligence.
             </p>
             <h3 className="text-xl font-semibold mt-6 mb-4">Core Principles</h3>
@@ -32,8 +32,8 @@ export default function DocsPage() {
                 and evolve its capabilities based on encountered challenges.
               </li>
               <li>
-                <strong>Cognitive Hierarchy:</strong> Implements a three-tier architecture of executive function (Odin), 
-                architectural development (Thor), and specialized task execution (Bragi).
+                <strong>Cognitive Hierarchy:</strong> Implements a three-tier architecture of executive function (Indra), 
+                architectural development (Thoth), and specialized task execution (Gaia).
               </li>
             </ul>
 
@@ -88,7 +88,7 @@ export default function DocsPage() {
           <h2 className="text-2xl font-semibold mb-6">Technical Implementation</h2>
           <div className="prose dark:prose-invert max-w-none">
             <p>
-              The Flux system is built on a modern tech stack designed for scalability, reliability, and real-time collaboration:
+              The Vora system is built on a modern tech stack designed for scalability, reliability, and real-time collaboration:
             </p>
             
             <h3 className="text-xl font-semibold mt-6 mb-4">Frontend Architecture</h3>
@@ -149,7 +149,7 @@ export default function DocsPage() {
           <h2 className="text-2xl font-semibold mb-6">Deployment Guide</h2>
           <div className="prose dark:prose-invert max-w-none">
             <p>
-              Flux can be deployed in various environments, from development to production. Here are the recommended deployment methods:
+              Vora can be deployed in various environments, from development to production. Here are the recommended deployment methods:
             </p>
 
             <h3 className="text-xl font-semibold mt-6 mb-4">Docker Deployment</h3>
@@ -157,8 +157,8 @@ export default function DocsPage() {
               <h4 className="font-medium mb-3">Quick Start with Docker Compose</h4>
               <pre className="text-sm bg-stone-200 dark:bg-stone-700 p-3 rounded overflow-x-auto">
 {`# Clone the repository
-git clone https://github.com/fluxai/flux
-cd flux
+git clone https://github.com/voraai/vora
+cd vora
 
 # Start the services
 docker-compose up -d
@@ -172,12 +172,12 @@ docker-compose ps`}
             <div className="mt-4 p-4 rounded-lg bg-stone-100 dark:bg-stone-800">
               <h4 className="font-medium mb-3">Deploy with Helm</h4>
               <pre className="text-sm bg-stone-200 dark:bg-stone-700 p-3 rounded overflow-x-auto">
-{`# Add the Flux Helm repository
-helm repo add flux https://charts.flux.ai
+{`# Add the Vora Helm repository
+helm repo add vora https://charts.vora.ai
 helm repo update
 
-# Install Flux
-helm install flux flux/flux-agi --namespace flux-system`}
+# Install Vora
+helm install vora vora/vora-agi --namespace vora-system`}
               </pre>
             </div>
 
@@ -186,8 +186,8 @@ helm install flux flux/flux-agi --namespace flux-system`}
               <h4 className="font-medium mb-3">Required Configuration</h4>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-start gap-2">
-                  <code className="text-sm bg-stone-200 dark:bg-stone-700 px-2 py-1 rounded min-w-[200px]">FLUX_API_KEY</code>
-                  <span>Your Flux API key for authentication</span>
+                  <code className="text-sm bg-stone-200 dark:bg-stone-700 px-2 py-1 rounded min-w-[200px]">VORA_API_KEY</code>
+                  <span>Your Vora API key for authentication</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <code className="text-sm bg-stone-200 dark:bg-stone-700 px-2 py-1 rounded min-w-[200px]">POSTGRES_URL</code>
@@ -210,16 +210,16 @@ helm install flux flux/flux-agi --namespace flux-system`}
           <h2 className="text-2xl font-semibold mb-6">Security</h2>
           <div className="prose dark:prose-invert max-w-none">
             <p>
-              Security is a top priority in Flux. Here are the key security features and best practices:
+              Security is a top priority in Vora. Here are the key security features and best practices:
             </p>
 
             <h3 className="text-xl font-semibold mt-6 mb-4">Authentication</h3>
             <div className="mt-4 p-4 rounded-lg bg-stone-100 dark:bg-stone-800">
               <h4 className="font-medium mb-3">API Authentication</h4>
               <pre className="text-sm bg-stone-200 dark:bg-stone-700 p-3 rounded overflow-x-auto">
-{`# API request with authentication
-curl -X GET https://api.flux.ai/agents \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+{`# Example API request with authentication
+curl -X GET https://api.vora.ai/agents \\
+  -H "Authorization: Bearer $API_KEY" \\
   -H "Content-Type: application/json"`}
               </pre>
             </div>
@@ -250,6 +250,39 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 Referrer-Policy: strict-origin-when-cross-origin`}
               </pre>
             </div>
+
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-4">WebSocket Connection</h3>
+              <pre className="text-sm bg-stone-200 dark:bg-stone-700 p-3 rounded overflow-x-auto">
+{`# Example WebSocket connection
+wscat -c wss://api.vora.ai/ws \\
+  -H "Authorization: Bearer $API_KEY" \\
+  -H "Host: api.vora.ai" \\
+  -H "Origin: https://vora.ai" \\
+  -H "Connection: Upgrade" \\
+  -H "Upgrade: websocket"`}
+              </pre>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-4">Kubernetes Logs</h3>
+              <pre className="text-sm bg-stone-200 dark:bg-stone-700 p-3 rounded overflow-x-auto">
+{`# View agent logs
+kubectl logs -n vora-system deployment/agent-pod
+
+# Restart agent deployment
+kubectl rollout restart -n vora-system deployment/agent-pod`}
+              </pre>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-4">Metrics</h3>
+              <pre className="text-sm bg-stone-200 dark:bg-stone-700 p-3 rounded overflow-x-auto">
+{`# Fetch system metrics
+curl https://api.vora.ai/metrics \\
+  -H "Authorization: Bearer $API_KEY"`}
+              </pre>
+            </div>
           </div>
         </Card>
 
@@ -263,9 +296,9 @@ Referrer-Policy: strict-origin-when-cross-origin`}
             
             <div className="mt-6 space-y-6">
               <div>
-                <h4 className="text-lg font-semibold">Odin - The Coordinator</h4>
+                <h4 className="text-lg font-semibold">Indra - The Sky God</h4>
                 <p className="mt-2">
-                  As the executive function of the system, Odin implements advanced planning algorithms and resource allocation 
+                  As the executive function of the system, Indra implements advanced planning algorithms and resource allocation 
                   strategies. It utilizes meta-learning techniques to optimize agent collaboration and task distribution, 
                   demonstrating emergent strategic thinking capabilities.
                 </p>
@@ -281,9 +314,9 @@ Referrer-Policy: strict-origin-when-cross-origin`}
               </div>
 
               <div>
-                <h4 className="text-lg font-semibold">Thor - The Architect</h4>
+                <h4 className="text-lg font-semibold">Thoth - The Knowledge Keeper</h4>
                 <p className="mt-2">
-                  Represents the system&apos;s self-modification capability, crucial for AGI development. Thor can analyze, modify, 
+                  Represents the system&apos;s self-modification capability, crucial for AGI development. Thoth can analyze, modify, 
                   and create new agents, implementing a form of recursive self-improvement that&apos;s essential for achieving 
                   artificial general intelligence.
                 </p>
@@ -299,11 +332,11 @@ Referrer-Policy: strict-origin-when-cross-origin`}
               </div>
 
               <div>
-                <h4 className="text-lg font-semibold">Bragi - The Assistant</h4>
+                <h4 className="text-lg font-semibold">Gaia - The Earth Mother</h4>
                 <p className="mt-2">
                   Serves as the primary interface for human-AI interaction, employing advanced natural language processing 
-                  and contextual understanding. Bragi demonstrates fluid intelligence by adapting its communication style 
-                  and problem-solving approach based on user interaction patterns.
+                  and contextual understanding. Gaia demonstrates fluid intelligence by adapting her communication style 
+                  and problem-solving approach based on user interaction patterns, all while maintaining harmony with nature.
                 </p>
                 <div className="mt-3 p-3 bg-stone-100 dark:bg-stone-800 rounded-lg">
                   <h5 className="font-medium mb-2">Technical Capabilities:</h5>
@@ -383,9 +416,9 @@ class CustomAgent(Agent):
 {`# Check WebSocket server status
 curl -N -H "Connection: Upgrade" \\
      -H "Upgrade: websocket" \\
-     -H "Host: api.flux.ai" \\
-     -H "Origin: https://flux.ai" \\
-     https://api.flux.ai/ws`}
+     -H "Host: api.vora.ai" \\
+     -H "Origin: https://vora.ai" \\
+     https://api.vora.ai/ws`}
                     </pre>
                   </li>
                 </ul>
@@ -399,10 +432,10 @@ curl -N -H "Connection: Upgrade" \\
                     <p>Check agent logs and restart if necessary:</p>
                     <pre className="text-sm bg-stone-200 dark:bg-stone-700 p-2 rounded mt-2">
 {`# View agent logs
-kubectl logs -n flux-system deployment/agent-pod
+kubectl logs -n vora-system deployment/agent-pod
 
 # Restart agent
-kubectl rollout restart -n flux-system deployment/agent-pod`}
+kubectl rollout restart -n vora-system deployment/agent-pod`}
                     </pre>
                   </li>
                 </ul>
@@ -416,7 +449,7 @@ kubectl rollout restart -n flux-system deployment/agent-pod`}
                     <p>Monitor system metrics:</p>
                     <pre className="text-sm bg-stone-200 dark:bg-stone-700 p-2 rounded mt-2">
 {`# Check system metrics
-curl https://api.flux.ai/metrics \\
+curl https://api.vora.ai/metrics \\
   -H "Authorization: Bearer YOUR_API_KEY"`}
                     </pre>
                   </li>

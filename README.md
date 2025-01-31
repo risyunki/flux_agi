@@ -1,7 +1,7 @@
-# FluxAGI
+# VoraAI
 
 <div align="center">
-  <img src="flux-frontend/public/logo.png" alt="FluxAGI Logo" width="200"/>
+  <img src="flux-frontend/public/logo.png" alt="VoraAI Logo" width="200"/>
   <h3>Next-Generation AI Agent Orchestration Platform</h3>
   <p>Empowering AI Collaboration Through Advanced Agent Orchestration</p>
 
@@ -14,11 +14,11 @@
   </div>
 </div>
 
-🔗 [GitHub Repository](https://github.com/risyunki/flux_agi) | [Documentation](https://github.com/risyunki/flux_agi/wiki) | [Demo](https://fluxagi.xyz)
+🔗 [GitHub Repository](https://github.com/Fildadelo/forgelabs) | [Documentation](https://github.com/Fildadelo/forgelabs/wiki) | [Demo](https://voraai.xyz)
 
 ## 🌟 Overview
 
-FluxAGI revolutionizes AI interaction by creating a seamless orchestration platform where multiple specialized AI agents collaborate to solve complex tasks. Built on modern web technologies, it features an intuitive interface, real-time updates, and sophisticated state management.
+VoraAI revolutionizes AI interaction by creating a seamless orchestration platform where multiple specialized AI agents collaborate to solve complex tasks. Built on modern web technologies, it features an intuitive interface, real-time updates, and sophisticated state management.
 
 ### Key Differentiators
 
@@ -31,15 +31,15 @@ FluxAGI revolutionizes AI interaction by creating a seamless orchestration platf
 ## ✨ Features
 
 ### 🤖 Multi-Agent System
-- **Specialized Agents by Flux Labs**
-  - Bragi: Advanced natural language processing and task execution
-  - Odin: Strategic oversight and resource coordination
-  - Thor: System architecture and agent maintenance
-  - Engineer: Technical implementation and code management
-  - Researcher: Data analysis and methodology research
+- **Divine Agents**
+  - Gaia: Earth Mother AI assistant with natural wisdom and nurturing guidance
+  - Indra: Sky God coordinator with celestial oversight and strategic planning
+  - Thoth: Knowledge Keeper architect with divine insight and system mastery
+  - Pan: Wild Engineer with creative force and technical precision
+  - Isis: Magic Weaver researcher with mystical knowledge and innovation
 
 - **Advanced Capabilities**
-  - Proprietary cross-agent communication protocols
+  - Divine cross-agent communication protocols
   - Dynamic capability discovery
   - Automated task delegation
   - Learning from past interactions
@@ -194,29 +194,45 @@ LOG_LEVEL=debug
 
 ## 🤖 AI Agents in Detail
 
-### Bragi - The Flux Labs AI Assistant
+### Gaia - The Earth Mother
 - **Core Responsibilities**
-  - Advanced natural language understanding
-  - Intelligent task decomposition
-  - Information synthesis
-  - Response generation
-  - Context management
+  - Natural language understanding with earthly wisdom
+  - Intuitive task decomposition
+  - Information synthesis with natural harmony
+  - Nurturing response generation
+  - Context management with environmental awareness
 
-### Odin - The Flux Labs Coordinator
+### Indra - The Sky God
 - **Core Responsibilities**
-  - Task orchestration
-  - Resource allocation
-  - Priority management
-  - Performance monitoring
-  - System optimization
+  - Celestial task orchestration
+  - Divine resource allocation
+  - Strategic priority management
+  - Performance monitoring from the heavens
+  - System optimization with cosmic precision
 
-### Thor - The Flux Labs Architect
+### Thoth - The Knowledge Keeper
 - **Core Responsibilities**
-  - System design
-  - Agent creation
-  - Performance testing
-  - System maintenance
-  - Capability enhancement
+  - Divine system architecture
+  - Agent creation and maintenance
+  - Performance testing with ancient wisdom
+  - System stability preservation
+  - Capability enhancement through cosmic knowledge
+
+### Pan - The Wild Engineer
+- **Core Responsibilities**
+  - Creative technical implementation
+  - Natural code development
+  - Wild debugging and optimization
+  - Harmonious system integration
+  - Feature crafting with untamed precision
+
+### Isis - The Magic Weaver
+- **Core Responsibilities**
+  - Mystical research and analysis
+  - Innovation through ancient wisdom
+  - Pattern discovery in cosmic data
+  - Knowledge synthesis and sharing
+  - Magical methodology development
 
 ## 📦 API Documentation
 

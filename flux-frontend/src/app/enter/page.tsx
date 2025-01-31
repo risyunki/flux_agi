@@ -53,7 +53,7 @@ export default function EnterPage() {
           className="text-center"
         >
           <h1 className="text-6xl font-bold text-stone-900 dark:text-white mb-2">
-            Flux<span className="text-stone-400 dark:text-stone-500">...</span>
+            Vora<span className="text-stone-400 dark:text-stone-500">...</span>
           </h1>
           <p className="text-stone-600 dark:text-stone-400 mb-8">
             Your AI-powered workspace
