@@ -1,7 +1,11 @@
 """
-Forge AI Agents Package
+Vora AI Agents Package
 """
 
-from .bragi import bragi
+from .gaia import gaia
+from .indra import indra
+from .thoth import thoth
+from .pan import pan
+from .isis import isis
 
-__all__ = ['bragi'] 
+__all__ = ['gaia', 'indra', 'thoth', 'pan', 'isis'] 

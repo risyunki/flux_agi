@@ -1,6 +1,6 @@
 {
-  "short_name": "Flux AGI",
-  "name": "Flux AGI - Advanced Multi-Agent System",
+  "short_name": "Vora AI",
+  "name": "Vora AI - Advanced Multi-Agent System",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,13 +8,43 @@
       "type": "image/x-icon"
     },
     {
-      "src": "icons/icon-192.png",
+      "src": "icons/icon-16x16.png",
+      "type": "image/png",
+      "sizes": "16x16"
+    },
+    {
+      "src": "icons/icon-32x32.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "icons/icon-48x48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "icons/icon-72x72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "icons/icon-192x192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "icons/icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
@@ -22,6 +52,6 @@
   ],
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#059669",
   "background_color": "#ffffff"
 } 

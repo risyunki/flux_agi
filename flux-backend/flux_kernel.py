@@ -150,15 +150,15 @@ async def startup_event():
 # ------------------------------------------------------
 if os.getenv("OPENAI_API_KEY"):
     try:
-        from agents.bragi import bragi
-        BRAGI_AVAILABLE = True
-        logger.info("Successfully imported Bragi agent")
+        from agents.gaia import gaia
+        GAIA_AVAILABLE = True
+        logger.info("Successfully imported Gaia agent")
     except ImportError as e:
-        BRAGI_AVAILABLE = False
-        logger.error(f"Unable to import 'bragi' agent: {str(e)}")
+        GAIA_AVAILABLE = False
+        logger.error(f"Unable to import 'gaia' agent: {str(e)}")
         logger.warning("Task processing features may be limited.")
 else:
-    BRAGI_AVAILABLE = False
+    GAIA_AVAILABLE = False
     logger.warning("OpenAI API key not found - agent features disabled")
 
 # ------------------------------------------------------
@@ -281,7 +281,7 @@ class FluxKernel:
 
         @app.post("/tasks")
         async def create_new_task(request: Request):
-            if not BRAGI_AVAILABLE:
+            if not GAIA_AVAILABLE:
                 raise HTTPException(
                     status_code=503,
                     detail="Task processing functionality is unavailable at this moment."
@@ -293,37 +293,48 @@ class FluxKernel:
 
         @app.get("/agents")
         async def list_agents():
-            return {
-                "agents": [
+            """List all available agents"""
+            try:
+                agents = [
                     {
                         "id": "assistant",
-                        "name": "Bragi",
-                        "status": "active" if BRAGI_AVAILABLE else "inactive",
+                        "name": "Gaia",
+                        "status": "active" if GAIA_AVAILABLE else "inactive",
                         "type": "assistant",
-                        "description": "A wise and eloquent AI assistant that can help with various tasks.",
-                        "capabilities": ["natural_language_understanding", "task_processing"],
-                        "version": "2.0.0"
+                        "description": "A wise and nurturing Earth Mother AI that embodies nature's intelligence.",
                     },
                     {
                         "id": "coordinator",
-                        "name": "Odin",
-                        "status": "active" if BRAGI_AVAILABLE else "inactive",
+                        "name": "Indra",
+                        "status": "active" if GAIA_AVAILABLE else "inactive",
                         "type": "coordinator",
-                        "description": "The wise overseer of all operations.",
-                        "capabilities": ["strategic_planning", "resource_management"],
-                        "version": "2.0.0"
+                        "description": "The celestial overseer of all operations, wielding the power of the heavens.",
                     },
                     {
                         "id": "architect",
-                        "name": "Thor",
-                        "status": "active" if BRAGI_AVAILABLE else "inactive",
+                        "name": "Thoth",
+                        "status": "active" if GAIA_AVAILABLE else "inactive",
                         "type": "architect",
-                        "description": "The master builder of the system.",
-                        "capabilities": ["system_architecture", "capability_enhancement"],
-                        "version": "2.0.0"
+                        "description": "The divine keeper of knowledge and wisdom.",
+                    },
+                    {
+                        "id": "engineer",
+                        "name": "Pan",
+                        "status": "active" if GAIA_AVAILABLE else "inactive",
+                        "type": "engineer",
+                        "description": "The wild engineer who channels nature's creative forces.",
+                    },
+                    {
+                        "id": "researcher",
+                        "name": "Isis",
+                        "status": "active" if GAIA_AVAILABLE else "inactive",
+                        "type": "researcher",
+                        "description": "The mystical weaver of magical knowledge and innovation.",
                     }
                 ]
-            }
+                return agents
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=str(e))
 
         @app.post("/tasks/{task_id}/archive")
         async def archive_task(task_id: str):
@@ -388,18 +399,24 @@ class FluxKernel:
             # Log which agent processes the task
             logger.info(f"Processing task {task.id} via {task.agent_id}")
             
-            # Process task with appropriate agent
+            # Process task based on agent type
             if task.agent_id == "assistant":
-                await ws_manager.broadcast_agent_activity(task.agent_id, "Bragi is analyzing your task")
-                result_text = bragi.process_task(task.id, task.description)
+                await ws_manager.broadcast_agent_activity(task.agent_id, "Gaia is analyzing your task with Earth's wisdom")
+                result_text = gaia.process_task(task.id, task.description)
             elif task.agent_id == "coordinator":
-                await ws_manager.broadcast_agent_activity(task.agent_id, "Odin is coordinating your task")
-                result_text = "Odin's wisdom: " + bragi.process_task(task.id, task.description)
+                await ws_manager.broadcast_agent_activity(task.agent_id, "Indra is coordinating your task from the celestial realm")
+                result_text = "Indra's celestial wisdom: " + gaia.process_task(task.id, task.description)
             elif task.agent_id == "architect":
-                await ws_manager.broadcast_agent_activity(task.agent_id, "Thor is architecting your solution")
-                result_text = "Thor's guidance: " + bragi.process_task(task.id, task.description)
+                await ws_manager.broadcast_agent_activity(task.agent_id, "Thoth is applying divine knowledge to your solution")
+                result_text = "Thoth's sacred guidance: " + gaia.process_task(task.id, task.description)
+            elif task.agent_id == "engineer":
+                await ws_manager.broadcast_agent_activity(task.agent_id, "Pan is channeling nature's creative forces")
+                result_text = "Pan's wild innovation: " + gaia.process_task(task.id, task.description)
+            elif task.agent_id == "researcher":
+                await ws_manager.broadcast_agent_activity(task.agent_id, "Isis is weaving magical knowledge")
+                result_text = "Isis's mystical insight: " + gaia.process_task(task.id, task.description)
             else:
-                result_text = bragi.process_task(task.id, task.description)
+                result_text = gaia.process_task(task.id, task.description)
             
             # Update task with result
             task.result = result_text

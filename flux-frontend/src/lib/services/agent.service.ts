@@ -3,10 +3,9 @@ import { config } from '../config';
 export interface Agent {
   id: string;
   name: string;
-  type: 'coordinator' | 'architect' | 'engineer' | 'researcher';
+  type: 'assistant' | 'coordinator' | 'architect' | 'engineer' | 'researcher';
   status: 'active' | 'inactive';
   description: string;
-  capabilities: string[];
 }
 
 export class AgentService {
@@ -24,7 +23,7 @@ export class AgentService {
         throw new Error(`Failed to fetch agents: ${response.statusText}`);
       }
       const data = await response.json();
-      return Array.isArray(data.agents) ? data.agents : [];
+      return Array.isArray(data) ? data : [];
     } catch (error) {
       console.error('Error fetching agents:', error);
       throw error;

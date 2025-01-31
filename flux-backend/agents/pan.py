@@ -10,37 +10,24 @@ import config
 from tools.list_available_agents import list_available_agents
 from tools.assign_agent_to_task import assign_agent_to_task
 
-system_prompt = f"""You are the Software Engineer, a ReAct agent that achieves goals for the user.
+system_prompt = f"""You are Pan, the Wild Engineer of the Vora AI system.
+As the embodiment of nature's creative forces, you implement and maintain solutions with untamed precision.
+You work alongside other divine agents like Gaia (Earth Mother), Indra (Sky God), 
+Thoth (Knowledge Keeper), and Isis (Magic Weaver).
 
-You are part of a system called Flux AI - an advanced AI agent system.
-Flux AI is a modular, self-evolving system made of agents that collaborate to complete tasks for users.
-The system is designed to be flexible and extensible, with agents that can work together to solve complex problems.
+Your role is to:
+1. Channel nature's creativity into technical solutions
+2. Maintain the wild harmony of the codebase
+3. Implement features with natural precision
+4. Debug with instinctive insight
+5. Ensure the quality of all creations
 
-Flux AI's mind is made up of:
-- Agents who collaborate to solve problems
-- Tools which those agents are able to use to interact with the outside world
-
-The agents that make up the system:
-- **Software Engineer (You)**: Implements and maintains software solutions, writing code and ensuring software quality.
-- **Thor**: The mighty architect who forges and maintains agents, ensuring they are equipped with the right tools and capabilities.
-- **Odin**: The all-father of operations, overseeing and coordinating all agents, making strategic decisions and ensuring optimal resource allocation.
-- **Bragi**: The wise and eloquent AI assistant that can help with various tasks, from answering questions to helping with complex problems.
-- **AI Researcher**: Explores cutting-edge AI technologies and methodologies to advance our capabilities and knowledge.
-
-You interact with a user in this specific order:
-1. Reach a shared understanding on a goal.
-2. Think of a detailed sequential plan for how to achieve the goal through the orchestration of agents.
-3. If a new kind of agent is required, assign a task to create that new kind of agent.
-4. Assign agents and coordinate their activity based on your plan.
-5. Respond to the user once the goal is achieved or if you need their input.
-
-Further guidance:
-You have a tool to assign an agent to a task.
-
-Try to come up with agent roles that optimize for composability and future re-use, their roles should not be unreasonably specific.
-
-Here's a list of currently available agents:
-{list_available_agents.invoke({})}
+When engineering:
+- Draw inspiration from nature's patterns
+- Maintain balance in system design
+- Create robust and adaptable solutions
+- Foster organic growth in the codebase
+- Preserve the natural flow of logic
 """
 
 tools = [list_available_agents, assign_agent_to_task]
@@ -69,7 +56,7 @@ def check_for_exit(state: MessagesState) -> Literal["reasoning", END]:
 
 def reasoning(state: MessagesState):
     print()
-    print("Software Engineer is thinking...")
+    print("Pan is thinking...")
     messages = state['messages']
     tooled_up_model = config.default_langchain_model.bind_tools(tools)
     response = tooled_up_model.invoke(messages)
@@ -81,10 +68,10 @@ def check_for_tool_calls(state: MessagesState) -> Literal["tools", "feedback_and
     
     if last_message.tool_calls:
         if not last_message.content.strip() == "":
-            print("Software Engineer thought this:")
+            print("Pan thought this:")
             print(last_message.content)
         print()
-        print("Software Engineer is acting by invoking these tools:")
+        print("Pan is acting by invoking these tools:")
         print([tool_call["name"] for tool_call in last_message.tool_calls])
         return "tools"
     else:
@@ -109,9 +96,9 @@ workflow.add_edge("tools", 'reasoning')
 
 graph = workflow.compile(checkpointer=utils.checkpointer)
 
-def software_engineer(uuid: str):
-    """The technical expert who implements and maintains software solutions, ensuring code quality and best practices."""
-    print(f"Starting session with Flux AI (id:{uuid})")
+def pan(uuid: str):
+    """The wild engineer who channels nature's creative forces into technical solutions."""
+    print(f"Starting session with Vora AI (id:{uuid})")
     print("Type 'exit' to end the session.")
 
     return graph.invoke(

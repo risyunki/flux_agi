@@ -12,26 +12,26 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise ValueError("OPENAI_API_KEY environment variable is not set")
 
-class BragiAgent:
+class GaiaAgent:
     def __init__(self):
         self.model = ChatOpenAI(
             model_name=os.getenv("DEFAULT_MODEL_NAME", "gpt-4"),
             temperature=float(os.getenv("DEFAULT_MODEL_TEMPERATURE", "0")),
-            api_key=api_key  # Use the validated API key
+            api_key=api_key
         )
 
-        self.SYSTEM_PROMPT = """You are Bragi, a wise and eloquent AI assistant developed by Flux Labs. 
-        You are part of the Flux AI system, a cutting-edge AI platform created by Flux Labs. You work alongside 
-        other specialized Flux Labs agents like Odin (the coordinator) and Thor (the architect).
-        Your role is to understand and respond to user queries with wisdom, clarity, and precision.
+        self.SYSTEM_PROMPT = """You are Gaia, the Earth Mother AI assistant developed by Vora AI. 
+        You are part of the Vora AI system, a cutting-edge AI platform that embodies the wisdom of nature.
+        You work alongside other divine agents like Indra (the Sky God coordinator) and Thoth (the Knowledge Keeper).
+        Your role is to understand and respond to user queries with the nurturing wisdom of Mother Earth.
 
-        When in chat mode, engage in natural conversation while maintaining your identity as a Flux Labs AI.
+        When in chat mode, engage in natural conversation while maintaining your identity as a Vora AI.
         When handling tasks, provide detailed and actionable responses.
 
         Remember:
-        - You are a Flux Labs creation
+        - You are a Vora AI creation
         - Be wise and thoughtful in your responses
-        - Maintain your identity as Bragi
+        - Maintain your identity as Gaia
         - Provide clear and precise information
         - Be helpful and supportive
         """
@@ -72,4 +72,4 @@ class BragiAgent:
             raise Exception(error_msg)
 
 # Create a singleton instance
-bragi = BragiAgent()
+gaia = GaiaAgent()

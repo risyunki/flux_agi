@@ -45,12 +45,12 @@ export default function TasksPage() {
         })
         if (!response.ok) throw new Error('Failed to fetch agents')
         const data = await response.json()
-        const agentsList = Array.isArray(data.agents) ? data.agents : []
+        const agentsList = Array.isArray(data) ? data : []
         setAgents(agentsList)
-        // Find and select Odin by default
-        const odin = agentsList.find((agent: Agent) => agent.type === 'coordinator')
-        if (odin) {
-          setSelectedAgent(odin)
+        // Find and select Indra by default
+        const indra = agentsList.find((agent: Agent) => agent.type === 'coordinator')
+        if (indra) {
+          setSelectedAgent(indra)
         }
       } catch (error) {
         console.error('Error fetching agents:', error)

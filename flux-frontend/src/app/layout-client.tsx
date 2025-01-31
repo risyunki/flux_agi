@@ -44,32 +44,32 @@ export function LayoutContent({ children }: LayoutContentProps) {
     {
       label: "AI Agents",
       href: "/",
-      icon: <CircleDot className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
+      icon: <CircleDot className="h-5 w-5 flex-shrink-0 transition-colors text-emerald-500 dark:text-emerald-400" />,
     },
     {
       label: "Chat",
       href: "/chat",
-      icon: <MessageSquare className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
+      icon: <MessageSquare className="h-5 w-5 flex-shrink-0 transition-colors text-emerald-500 dark:text-emerald-400" />,
     },
     {
       label: "Tasks",
       href: "/tasks",
-      icon: <ListTodo className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
+      icon: <ListTodo className="h-5 w-5 flex-shrink-0 transition-colors text-emerald-500 dark:text-emerald-400" />,
     },
     {
       label: "Documentation",
       href: "/docs",
-      icon: <FileText className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
+      icon: <FileText className="h-5 w-5 flex-shrink-0 transition-colors text-emerald-500 dark:text-emerald-400" />,
     },
     {
       label: "Settings",
       href: "/settings",
-      icon: <Settings className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
+      icon: <Settings className="h-5 w-5 flex-shrink-0 transition-colors text-emerald-500 dark:text-emerald-400" />,
     },
     {
       label: "GitHub",
-      href: "https://github.com/risyunki/flux_agi",
-      icon: <Github className="h-5 w-5 flex-shrink-0 transition-colors dark:text-stone-400" />,
+      href: "https://github.com/voraai/vora",
+      icon: <Github className="h-5 w-5 flex-shrink-0 transition-colors text-emerald-500 dark:text-emerald-400" />,
     },
   ]
 
@@ -96,7 +96,7 @@ export function LayoutContent({ children }: LayoutContentProps) {
         </SidebarBody>
       </Sidebar>
 
-      <main className="flex-1 overflow-y-auto bg-gradient-to-br from-stone-50 via-white to-stone-100/50 p-8 transition-colors dark:from-stone-950 dark:via-stone-900 dark:to-stone-950/50">
+      <main className="flex-1 overflow-y-auto bg-gradient-to-br from-emerald-50/20 via-white to-emerald-100/30 p-8 transition-colors dark:from-stone-950 dark:via-emerald-900/10 dark:to-stone-950/50">
         <div className="max-w-7xl mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
@@ -119,13 +119,13 @@ export function LayoutContent({ children }: LayoutContentProps) {
 const Logo = ({ isDark, isOpen }: { isDark: boolean; isOpen: boolean }) => {
   return (
     <div className="flex items-center gap-2 px-2">
-      <div className={`h-10 w-10 rounded-lg flex items-center justify-center transition-colors overflow-hidden ${isDark ? 'bg-stone-800' : 'bg-stone-900'}`}>
+      <div className={`h-10 w-10 rounded-lg flex items-center justify-center transition-colors overflow-hidden ${isDark ? 'bg-emerald-900/50' : 'bg-emerald-100'}`}>
         <Image
           src="/logo.png"
           width={32}
           height={32}
           className="w-auto h-auto object-contain"
-          alt="Flux Logo"
+          alt="Vora Logo"
           priority
         />
       </div>
@@ -134,9 +134,9 @@ const Logo = ({ isDark, isOpen }: { isDark: boolean; isOpen: boolean }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="font-semibold text-stone-900 transition-colors dark:text-white"
+          className="font-semibold text-emerald-900 transition-colors dark:text-emerald-100"
         >
-          Flux
+          Vora
         </motion.span>
       )}
     </div>

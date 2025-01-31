@@ -5,9 +5,9 @@ import { LayoutContent } from "./layout-client"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: 'Flux - AGI-Powered Workspace',
+  title: 'Vora - AGI-Powered Workspace',
   description: 'Self-evolving AGI made of agents that collaborate, and build new agents as needed, in order to complete tasks for a user.',
-  metadataBase: new URL('https://fluxai.xyz'),
+  metadataBase: new URL('https://vora.ai'),
   icons: {
     icon: [
       { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -30,31 +30,31 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   openGraph: {
     type: 'website',
-    url: 'https://fluxai.xyz',
-    title: 'Flux - AGI-Powered Workspace',
+    url: 'https://vora.ai',
+    title: 'Vora - AGI-Powered Workspace',
     description: 'Self-evolving AGI made of agents that collaborate, and build new agents as needed, in order to complete tasks for a user.',
-    siteName: 'Flux AI',
+    siteName: 'Vora AI',
     images: [
       {
         url: '/icons/icon-512.png',
         width: 512,
         height: 512,
-        alt: 'Flux AI Logo',
+        alt: 'Vora AI Logo',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Flux - AGI-Powered Workspace',
+    title: 'Vora - AGI-Powered Workspace',
     description: 'Self-evolving AGI made of agents that collaborate, and build new agents as needed, in order to complete tasks for a user.',
-    site: '@fluxai',
-    creator: '@fluxai',
+    site: '@voraai',
+    creator: '@voraai',
     images: [
       {
         url: '/icons/icon-512.png',
         width: 512,
         height: 512,
-        alt: 'Flux AI Logo',
+        alt: 'Vora AI Logo',
       },
     ],
   },

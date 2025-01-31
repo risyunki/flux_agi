@@ -34,8 +34,8 @@ const agentIcons = {
 
 const agentDetails = {
   assistant: {
-    title: "Bragi - The AI Assistant",
-    description: "A wise and eloquent AI assistant that can help with various tasks, from answering questions to helping with complex problems.",
+    title: "Gaia - The Earth Mother",
+    description: "A wise and nurturing AI assistant that embodies the primordial essence of Earth's intelligence, helping with various tasks while maintaining harmony.",
     features: [
       "Natural Language Understanding",
       "Task Processing",
@@ -43,11 +43,11 @@ const agentDetails = {
       "Problem Solving",
       "Real-time Responses"
     ],
-    role: "Your primary interface for task execution and problem-solving. Bragi understands natural language and can help with a wide range of tasks, speaking with the wisdom of the gods."
+    role: "Your primary interface for task execution and problem-solving. Gaia understands natural language and can help with a wide range of tasks, speaking with the wisdom of nature itself."
   },
   coordinator: {
-    title: "Odin - The Coordinator",
-    description: "The wise overseer of all operations and strategic planning.",
+    title: "Indra - The Sky God",
+    description: "The celestial overseer of all operations and strategic planning, wielding the power of the heavens to coordinate and optimize.",
     features: [
       "Strategic Planning",
       "Resource Management",
@@ -55,11 +55,11 @@ const agentDetails = {
       "Task Prioritization",
       "System Optimization"
     ],
-    role: "The all-father of operations, Odin oversees and coordinates all agents, making strategic decisions and ensuring optimal resource allocation for maximum efficiency."
+    role: "The sovereign of the heavens, Indra oversees and coordinates all agents, making strategic decisions and ensuring optimal resource allocation with divine precision."
   },
   architect: {
-    title: "Thor - The Architect",
-    description: "The master builder and maintainer of the system's agents.",
+    title: "Thoth - The Knowledge Keeper",
+    description: "The master of wisdom and universal knowledge, shaping the foundations of our system with divine insight.",
     features: [
       "Agent Creation",
       "System Architecture",
@@ -67,11 +67,11 @@ const agentDetails = {
       "Performance Testing",
       "Agent Maintenance"
     ],
-    role: "The mighty architect who forges and maintains agents, ensuring they are equipped with the right tools and capabilities to handle any challenge."
+    role: "The divine architect who forges and maintains agents, ensuring they are equipped with the right tools and capabilities to handle any challenge with cosmic wisdom."
   },
   engineer: {
-    title: "Software Engineer",
-    description: "Implements and maintains software solutions.",
+    title: "Pan - The Wild Engineer",
+    description: "Channels the creative forces of nature to implement and maintain solutions with untamed precision.",
     features: [
       "Code Development",
       "Bug Fixing",
@@ -79,11 +79,11 @@ const agentDetails = {
       "Testing",
       "Technical Implementation"
     ],
-    role: "Handles the technical implementation of solutions, writing code and ensuring software quality."
+    role: "Channels the creative forces of the wild to handle technical implementation, ensuring harmony and quality in all solutions."
   },
   researcher: {
-    title: "AI Researcher",
-    description: "Conducts research and analysis in artificial intelligence.",
+    title: "Isis - The Magic Weaver",
+    description: "Explores the mysteries of artificial intelligence with the ancient wisdom of magical arts and divine insight.",
     features: [
       "Data Analysis",
       "Research Planning",
@@ -91,7 +91,7 @@ const agentDetails = {
       "Literature Review",
       "Innovation Discovery"
     ],
-    role: "Explores cutting-edge AI technologies and methodologies to advance our capabilities and knowledge."
+    role: "Uncovers new knowledge and methodologies with the wisdom of the ages, advancing our understanding of AI's potential."
   }
 } as const;
 
@@ -114,7 +114,7 @@ export default function Home() {
         })
         if (!response.ok) throw new Error('Failed to fetch agents')
         const data = await response.json()
-        const agentsList = Array.isArray(data.agents) ? data.agents : []
+        const agentsList = Array.isArray(data) ? data : []
         setAgents(agentsList)
       } catch (error) {
         console.error('Error fetching agents:', error)
@@ -186,6 +186,13 @@ export default function Home() {
   return (
     <Window className="p-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/30 p-4 mb-8">
+          <p className="text-emerald-800 dark:text-emerald-200">
+            🧪 <span className="font-semibold">Experimental Features:</span> Some features are still in development. 
+            Check out our <a href="https://github.com/voraai/vora" className="underline hover:text-emerald-600 dark:hover:text-emerald-300">GitHub repository</a> for the latest updates and contributions.
+          </p>
+        </div>
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-semibold text-stone-900 dark:text-white">AI Agents</h1>
@@ -259,7 +266,7 @@ export default function Home() {
                 <ul className="space-y-2">
                   {agentDetails[selectedAgent.type as AgentType]?.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       {feature}
                     </li>
                   ))}
@@ -281,7 +288,7 @@ export default function Home() {
         <div className="grid gap-4">
           {isLoading ? (
             <div className="flex items-center justify-center p-4">
-              <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : inProgressTasks.length > 0 ? (
             inProgressTasks.map((task) => (
@@ -292,7 +299,7 @@ export default function Home() {
                     <p className="text-sm text-stone-500 dark:text-stone-400">In Progress</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                   </div>
                 </div>
               </Card>
@@ -304,13 +311,13 @@ export default function Home() {
       </div>
 
       <div className="space-y-8">
-        <h2 className="text-2xl font-semibold text-stone-900 dark:text-white">Getting Started with Flux</h2>
+        <h2 className="text-2xl font-semibold text-stone-900 dark:text-white">Getting Started with Vora</h2>
         
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Card className="p-6 backdrop-blur-sm bg-white/50 dark:bg-stone-900/50">
             <h3 className="text-lg font-semibold mb-3 text-stone-900 dark:text-white">1. Choose Your Agent</h3>
             <p className="text-stone-600 dark:text-stone-400">
-              Select from our specialized AI agents, each designed for specific tasks. From Odin&apos;s strategic oversight to Thor&apos;s architectural prowess.
+              Select from our specialized AI agents, each designed for specific tasks. From Indra&apos;s celestial oversight to Thoth&apos;s cosmic architecture.
             </p>
           </Card>
 
@@ -330,21 +337,21 @@ export default function Home() {
         </div>
 
         <Card className="p-8 backdrop-blur-sm bg-white/50 dark:bg-stone-900/50">
-          <h3 className="text-xl font-semibold mb-4 text-stone-900 dark:text-white">Why Choose Flux?</h3>
+          <h3 className="text-xl font-semibold mb-4 text-stone-900 dark:text-white">Why Choose Vora?</h3>
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-4">
               <h4 className="font-medium text-stone-900 dark:text-white">Advanced AI Capabilities</h4>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-                  <CircleDot className="w-4 h-4" />
+                  <CircleDot className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Multi-agent collaboration for complex tasks
                 </li>
                 <li className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-                  <CircleDot className="w-4 h-4" />
+                  <CircleDot className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Self-evolving system that learns and improves
                 </li>
                 <li className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-                  <CircleDot className="w-4 h-4" />
+                  <CircleDot className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Real-time task updates and progress tracking
                 </li>
               </ul>
@@ -353,15 +360,15 @@ export default function Home() {
               <h4 className="font-medium text-stone-900 dark:text-white">User Experience</h4>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-                  <CircleDot className="w-4 h-4" />
+                  <CircleDot className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Intuitive interface for seamless interaction
                 </li>
                 <li className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-                  <CircleDot className="w-4 h-4" />
+                  <CircleDot className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Natural language task description
                 </li>
                 <li className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-                  <CircleDot className="w-4 h-4" />
+                  <CircleDot className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Transparent agent communication
                 </li>
               </ul>

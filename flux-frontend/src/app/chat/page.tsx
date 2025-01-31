@@ -58,9 +58,10 @@ export default function ChatPage() {
         const response = await fetch(`${config.apiUrl}/agents`)
         if (!response.ok) throw new Error('Failed to fetch agents')
         const data = await response.json()
-        setAgents(data.agents || [])
-        if (data.agents?.length > 0) {
-          const initialAgent = data.agents[0]
+        const agentsList = Array.isArray(data) ? data : []
+        setAgents(agentsList)
+        if (agentsList.length > 0) {
+          const initialAgent = agentsList[0]
           setSelectedAgent(initialAgent)
           // Set initial message based on the first agent
           setMessages([{
