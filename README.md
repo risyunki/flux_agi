@@ -14,7 +14,7 @@
   </div>
 </div>
 
-🔗 [GitHub Repository](https://github.com/Fildadelo/forgelabs) | [Documentation](https://github.com/Fildadelo/forgelabs/wiki) | [Demo](https://voraai.xyz)
+🔗 [GitHub Repository](https://github.com/risyunki/vora-agi) | [Documentation](https://github.com/risyunki/vora-agi/wiki) | [Demo](https://voraai.xyz)
 
 ## 🌟 Overview
 
